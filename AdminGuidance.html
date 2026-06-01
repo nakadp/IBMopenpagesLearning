@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdminGuide 知识架构树</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --level-1: #fbbf24;
+            --level-2: #38bdf8;
+            --level-3: #34d399;
+            --level-4: #c084fc;
+            --level-5: #f472b6;
+            --level-6: #ef4444;
+            --level-7: #f97316;
+            --level-8: #84cc16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(192, 132, 252, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #38bdf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Tree Styles */
+        .tree-root {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .node {
+            margin: 14px 0;
+            position: relative;
+        }
+
+        .node-header {
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--node-color, transparent);
+            opacity: 0.8;
+            transition: width 0.3s ease;
+        }
+
+        .node-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(4px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .node-header:hover::before {
+            width: 6px;
+        }
+
+        .node-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--node-color, var(--text-color));
+            letter-spacing: 0.5px;
+        }
+
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            opacity: 0.6;
+            color: var(--text-color);
+        }
+
+        .expanded>.node-header .chevron {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+
+        .tags {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+            font-size: 0.95rem;
+        }
+
+        .tag-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tag-label {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .tag-logic {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .tag-explain {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .tag-text {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .node-children {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .expanded>.node-children {
+            grid-template-rows: 1fr;
+        }
+
+        .children-wrapper {
+            overflow: hidden;
+            padding-left: 32px;
+            margin-left: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        /* Leaf node Specific styling */
+        .leaf-node>.node-header {
+            padding: 14px 18px;
+            background: transparent;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            cursor: default;
+        }
+
+        .leaf-node>.node-header:hover {
+            background: rgba(255, 255, 255, 0.02);
+            transform: translateX(2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .leaf-node>.node-header .node-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%;
+            max-width: 750px;
+            max-height: 85vh;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+        }
+
+        .modal-container.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-color);
+            transform: scale(1.1);
+        }
+
+        .modal-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #fbbf24, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-content .modal-subtitle {
+            color: #cbd5e1;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 12px 16px;
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            border-radius: 4px;
+        }
+
+        .modal-point {
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-point h3 {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-point h3::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: #38bdf8;
+            border-radius: 50%;
+        }
+
+        .modal-point p {
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+
+        .modal-point ul {
+            padding-left: 20px;
+            color: #94a3b8;
+        }
+
+        .modal-point li {
+            margin-bottom: 8px;
+        }
+
+        .modal-point li strong {
+            color: #cbd5e1;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            background: rgba(244, 114, 182, 0.15);
+            color: #f472b6;
+            border: 1px solid rgba(244, 114, 182, 0.3);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(244, 114, 182, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 悬浮操作区 (FAB) */
+        .fab-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .fab-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fab-button:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.6);
+        }
+
+        .search-box {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            padding: 0;
+            width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            height: 60px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            pointer-events: none;
+        }
+
+        .search-box.active {
+            width: 320px;
+            padding: 0 20px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            outline: none;
+            width: 100%;
+            font-size: 1.05rem;
+            margin-left: 8px;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+
+        .clear-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .modal-container {
+                padding: 30px 20px;
+            }
+
+            .children-wrapper {
+                padding-left: 16px;
+                margin-left: 10px;
+            }
+
+            .node-title {
+                font-size: 1.05rem;
+            }
+
+            .tag-row {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .tag-label {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>AdminGuide 知识架构树</h1>
+            <p class="subtitle">按“系统运转的物理逻辑与业务流向”归类的 5 层深度全局认知体系</p>
+        </header>
+
+        <div class="controls">
+            <button onclick="toggleAll(true)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align: -2px; margin-right: 4px;">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>全部展开
+            </button>
+            <button onclick="toggleAll(false)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align: -2px; margin-right: 4px;">
+                    <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                </svg>全部折叠
+            </button>
+        </div>
+
+        <div id="tree" class="tree-root"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal-container" id="modalContainer">
+        <button class="modal-close" onclick="closeModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <!-- 悬浮操作按钮 (FAB) -->
+    <div class="fab-container">
+        <div class="search-box" id="searchBox">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--text-muted)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="搜索知识树..." onkeyup="searchNodes(this.value)">
+            <button class="clear-btn" onclick="document.getElementById('searchInput').value=''; searchNodes('');" id="clearSearchBtn" style="display:none;">&times;</button>
+        </div>
+        <button class="fab-button" onclick="toggleSearch()" title="搜索节点">
+            <svg id="fabIcon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+    </div>
+
+    <script>
+        function toggleSearch() {
+            const searchBox = document.getElementById('searchBox');
+            const searchInput = document.getElementById('searchInput');
+            searchBox.classList.toggle('active');
+            if (searchBox.classList.contains('active')) {
+                searchInput.focus();
+            } else {
+                searchInput.value = '';
+                searchNodes('');
+            }
+        }
+
+        function searchNodes(query) {
+            query = query.toLowerCase().trim();
+            const allNodes = document.querySelectorAll('.node');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            
+            if (query) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            if (!query) {
+                allNodes.forEach(node => {
+                    node.style.display = '';
+                });
+                return;
+            }
+            
+            allNodes.forEach(node => {
+                node.style.display = 'none';
+            });
+            
+            allNodes.forEach(node => {
+                const header = node.querySelector(':scope > .node-header');
+                if (header && header.textContent.toLowerCase().includes(query)) {
+                    node.style.display = '';
+                    let current = node.parentElement.closest('.node');
+                    while (current) {
+                        current.style.display = '';
+                        current.classList.add('expanded');
+                        current = current.parentElement.closest('.node');
+                    }
+                }
+            });
+        }
+
+        const treeData = {
+            "name": "📘 Level 1 (根节点): AdminGuide",
+            "logic": "代表整个系统生态的最高层级，涵盖从底层硬件到前端业务的所有控制权。",
+            "explanation": "这是一座超级数字化合规大厦。下面分为大厦地基、室内硬装、智能家电、业务外包和物业管理五大模块。",
+            "level": 1,
+            "children": [
+                {
+                    "name": "⚙️ Level 2 (基建层): 基础架构与核心控制",
+                    "logic": "控制系统能否运行、谁能进门、以及底层运转模式的全局框架。",
+                    "explanation": "大厦的地基、承重墙和安保系统。",
+                    "level": 2,
+                    "children": [
+                        {
+                            "name": "🛠️ Level 3: 全局环境与参数调优",
+                            "logic": "影响所有模块的系统级开关、隐藏属性和性能上限。",
+                            "explanation": "大厦的总电闸和设备机房。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "🔧 Level 4: 系统运行模式与底层参数",
+                                    "logic": "修改系统深层逻辑和维护期间的保护机制。",
+                                    "explanation": "系统的“注册表”和高级维修模式。",
+                                    "level": 4,
+                                    "children": [
+                                        {
+                                            "name": "📄 Level 5: 系统管理方式 (SAM)",
+                                            "explanation": "霸体/清场模式。管理员大修时开启，锁住系统防止别人进来搞破坏。",
+                                            "level": 5,
+                                            "details": {
+                                                "title": "🛡️ 系统管理方式 (SAM) 核心提炼",
+                                                "subtitle": "核心原则：SAM 的本质是对系统进行“锁库”，保障配置更改的原子性和安全性。",
+                                                "points": [
+                                                    {
+                                                        "title": "1. 触发场景（什么时候必须开？）",
+                                                        "content": "当你需要对系统进行全局性、结构性的底层修改时，必须开启 SAM。典型场景包括：\n<ul><li><strong>改骨架</strong>：创建或修改“对象类型”、“字段”、“字段组”。</li><li><strong>改UI与权限</strong>：大规模修改“概要文件 (Profiles)”、“安全规则”或“角色模板”。</li><li><strong>大搬运</strong>：使用 ObjectManager 或 FastMap 进行大规模的基础元数据导入/导出。</li><li><strong>版本升级</strong>：应用补丁或系统大版本更新。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "2. 清场效果（开启后会发生什么？）",
+                                                        "content": "一旦激活 SAM，系统会进入“绝对防御”状态：\n<ul><li><strong>人员隔离</strong>：所有普通用户将被禁止登录。如果用户当时在线，系统通常会中断其操作并强制下线（建议提前发通知）。</li><li><strong>特权通行</strong>：只有拥有 Super Administrator（超级管理员） 权限的账号可以登录并操作。</li><li><strong>后台静默</strong>：强力建议在开启 SAM 时，手动暂停所有调度程序（后台定时作业）和工作流，防止后台任务和你的前台修改发生数据死锁。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "3. 标准操作 S.O.P（正确的大修步骤）",
+                                                        "content": "不要一上来就开 SAM，按以下步骤最稳妥：\n<ul><li><strong>广而告之</strong>：提前通过邮件或系统公告通知全员停机时间。</li><li><strong>清空后台</strong>：检查并暂停调度程序中正在运行或即将运行的作业。</li><li><strong>开启 SAM</strong>：在“设置”面板中激活系统管理方式（清场）。</li><li><strong>执行修改</strong>：进行你的配置或数据导入操作。</li><li><strong>沙盒验证</strong>：（极其重要！） 就在 SAM 模式下，用管理员账号测试你刚才的修改是否生效，有没有报错。</li><li><strong>关闭 SAM</strong>：解除锁定，开门迎客。</li><li><strong>重启后台</strong>：恢复之前暂停的后台调度任务。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "4. 绝对红线（避坑警告）",
+                                                        "content": "<ul><li><strong>不要在 SAM 模式下停留过久</strong>：它会中断整个企业的业务流转，请在测试环境演练熟练后，再到生产环境开启 SAM 快速操作。</li><li><strong>避免在高峰期操作</strong>：尽量选择非工作时间（深夜或周末）开启。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "5. 常见误区澄清",
+                                                        "content": "<ul><li><strong>SAM 不是用来“删数据”的</strong>：日常的业务数据删除不需要开 SAM；只有修改数据模型（元数据）时才需要。</li><li><strong>SAM 无法代替测试环境</strong>：不要把生产环境的 SAM 当成测试场。所有的配置大修，必须先在测试服务器上做一遍，确认无误后，再到生产服务器开启 SAM 实施。</li></ul>"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "name": "🎛️ Level 5: \"查看配置和设置\" 页面",
+                                            "logic": "进入全局系统参数控制台的入口，统管上千个底层键值对。",
+                                            "explanation": "系统注册表的总大门，进去后分门别类地管理各项硬核开关。",
+                                            "level": 5,
+                                            "children": [
+                                                {
+                                                    "name": "📂 Level 6：面板操作与自定义基建 (面板本身的说明书)",
+                                                    "logic": "教你怎么使用这个庞大的设置面板，以及官方开关不够用时怎么自己造。",
+                                                    "explanation": "工具箱的使用手册和自制工具指南。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7：管理与寻址机制",
+                                                            "explanation": "教你怎么在海量参数里找设置（Managing settings），以及用代码导数据时这些参数的路径长啥样（Paths for settings...）。",
+                                                            "level": 7
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：自定义设置引擎 (Custom settings)",
+                                                            "explanation": "官方没给的开关，自己手捏。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：创建与删除自定义设置 (Creating/Deleting)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：复制设置和文件夹做模板 (Copying)", "level": 8 }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "📂 Level 6：Applications 配置夹 (前端交互与业务大脑)",
+                                                    "logic": "直接决定前台员工“看到什么”、“能做什么业务”、“生成什么单号”。",
+                                                    "explanation": "大厦的软装视觉、电子门牌号生成器和办公自动化规则。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7：UI视觉与导航框架",
+                                                            "explanation": "控制界面长相、菜单排版和浏览器加载效率。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：菜单结构重排版 (Menus: Modify order/submenus)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：页面视图与日期格式 (View settings / Date format)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：浏览器缓存控制 (Configure browser cache)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：法律与无障碍入口 (Display accessibility/Privacy links)", "level": 8 }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：对象自动化与生命周期",
+                                                            "explanation": "系统给数据自动发流水号、加锁和销毁的流水线规则。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：单据自动命名引擎与附件重名规则 (Object auto-naming / SOXDoc duplicate names)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：电子签名与数据封存防篡改 (Signature and lock settings)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：系统大扫除与垃圾站销毁时间 (Object Reset / Deletion interval)", "level": 8 }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：外部文件交互与通讯",
+                                                            "explanation": "系统怎么发邮件、怎么吃下超大附件。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：发件邮箱服务器绑定 (Configuring mail server)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：大附件上传限制解除 (Configuring large files upload)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：网页直开 Office 文件配置 (Enabling opening of MS Office files)", "level": 8 }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "📂 Level 6：Common 配置夹 (系统物理防线与红线)",
+                                                    "logic": "横跨全系统的绝对物理阈值，保护系统不被海量数据或非法操作搞崩溃。",
+                                                    "explanation": "大厦的承重极限、最大客流量限制和基础安检仪。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7：防过载性能限制",
+                                                            "explanation": "防卡顿的硬核阈值。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：一次最大分页展示量 (Maximum page size)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：财务汇率单次最大导入行数 (Max rows in exchange rate upload)", "level": 8 }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：底层安全引擎",
+                                                            "explanation": "账号防注水和权限底层模式。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：用户名非法字符屏蔽 (Exclude characters from user names)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：系统全局安全模型切换 (Set system security model / Disable access control on Role groups)", "level": 8 }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "📂 Level 6：Platform 配置夹 (后端架构底座与API网络)",
+                                                    "logic": "纯技术向配置，涉及外部接口通信、数据库解析逻辑和第三方引擎对接。",
+                                                    "explanation": "机房里的网络路由器、数据翻译器和外接光缆。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7：API 接口与流量防卫",
+                                                            "explanation": "给外部系统（如OA）开后门，并防止他们请求太快把我们搞宕机。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：开启自定义 REST 服务 (Enable custom REST service)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：API 查询默认分页大小 (Set default pageSize for API)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：API 接口限流器配置 (Enable rate limiting)", "level": 8 }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：数据库翻译引擎",
+                                                            "explanation": "告诉底层数据库怎么理解时间差、日期格式和多语言。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：日期函数正负号逻辑 (Set sign of integer returned by dates)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：字符串转日期的底层解析法 (Set date format for parsing strings)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：时区与本地化内核 (Set localization options)", "level": 8 }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7：核心组件群集对接",
+                                                            "explanation": "绑定 BI 报表服务器和主机通信规则。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：Cognos 高级报表引擎连接线 (Cognos URL / Reporting Schema)", "level": 8 },
+                                                                { "name": "⚙️ Level 8：主机绑定与跨环境共享 (Configure host setting / Cross-context sharing)", "level": 8 }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "📂 Level 6：User Preferences 配置夹 (末端终端偏好)",
+                                                    "logic": "控制系统在最后一步如何打扰或提醒用户。",
+                                                    "explanation": "员工桌面上的来电提醒方式。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7：消息提醒触达机制",
+                                                            "explanation": "来活儿了怎么通知。",
+                                                            "level": 7,
+                                                            "children": [
+                                                                { "name": "⚙️ Level 8：系统警报的通知行为弹窗配置 (Set alert notification behavior)", "level": 8 }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        { "name": "📄 Level 5: 属性和参数", "explanation": "底层配置文件。修改代码级别的隐藏参数。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置 IBM OpenPages (最佳实践)", "explanation": "官方避坑指南。教你怎么设计才不会让系统卡顿崩溃的心法。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "🛡️ Level 3: 安全合规与权限体系",
+                            "logic": "构建“人-权-数据”三位一体的访问防御工事。",
+                            "explanation": "大厦的门禁卡系统和机密档案室锁。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "👤 Level 4: 身份网络与细粒度权限",
+                                    "logic": "人员编制录入与增删改查动作的授权。",
+                                    "explanation": "录入员工指纹，并规定谁能进财务室、谁只能在走廊转转。",
+                                    "level": 4,
+                                    "children": [
+                                        {
+                                            "name": "📂 Level 5: 用户，组和域",
+                                            "logic": "统管全系统的人员权限分布架构。",
+                                            "explanation": "建账号、分部门。录入人员，将人员打包进用户组，并按区域（域）隔离。",
+                                            "level": 5,
+                                            "children": [
+                                                {
+                                                    "name": "📄 Level 6: OPAdministrators 组",
+                                                    "explanation": "系统出厂自带的“无敌特权组”，拥有众多独占的高级权限。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "👑 OPAdministrators 组 (核心特权解密)",
+                                                        "subtitle": "核心逻辑：这是系统初创时的“神职组”，进组即拥有排他性的最高权限。切勿随意拉人进组。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 特权组的诞生与位置",
+                                                                "content": "<ul><li><strong>出厂自带</strong>：在系统安装完毕时自动生成，无法手动重造。</li><li><strong>隐秘的藏身处</strong>：它躲在 <code>工作流程，报告和其他 > 独立用户和组</code> 目录下。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 独家菜单视野 (能看到别人看不到的菜单)",
+                                                                "content": "进组后，管理菜单里会多出几个极其核心的硬核入口：\n<ul><li><strong>系统文件</strong>：管理底层系统文件。</li><li><strong>用户 LDAP 配置</strong>：对接外部域账号。</li><li><strong>页面和模板</strong>：控制系统UI的长相。</li><li><strong>Cloud Pak for Data Cognos 集成</strong>：配置高级BI报表通道。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. 绝对的文件垄断权 (排他性访问)",
+                                                                "content": "有些文件夹只有这个组的人才能碰（即具有读/写/删除/管理的最高权限）：\n<ul><li><code>/页面和模板/Reporting</code> 文件夹（普通用户只能看不能改）。</li><li><code>/Migration Documents</code>：环境搬家/升级时极其重要的文件夹。</li><li><code>/LogCollector Documents</code>：收集系统崩溃日志的文件夹。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "4. 账号操作的特权 (用户供应与管理)",
+                                                                "content": "你要想管理别人的账号权限，有些动作必须有这个组的身份：\n<ul><li><strong>清退员工</strong>：禁用账号时，有权一键清除他名下的下属访问权。</li><li><strong>抄作业</strong>：有权将一个老员工的“报告访问权”原封不动地复制给一个新员工。</li><li><strong>查户口</strong>：能够查看任何用户的报告访问权限。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 规划用户管理",
+                                                    "explanation": "建账号前的“架构图纸”。决定怎么建人、怎么抄作业、怎么管密码。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "📋 规划用户管理 (建号避坑指南)",
+                                                        "subtitle": "核心逻辑：不要上来就建人！建账号之前必须先设定好规则，尤其是如何通过“模板”快速拉人，以及账号的默认生存法则。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 账号从哪里来？(LDAP 与 模板复制)",
+                                                                "content": "<ul><li><strong>LDAP 直连</strong>：决定是否跟公司的域控（LDAP）打通，让系统自动抓取员工信息。如果是，需要配证书和访问权。</li><li><strong>模板抄作业大法</strong>：系统允许你拿一个老员工当模板，直接复制他的权限（语言、UI外壳、角色、部门）给新员工。你需要提前想好：谁能当模板？离职员工（不活动用户）能不能当模板？复制时是“覆盖”还是“追加”权限？建议建几个专门的“假账号”作为不同岗位的标准模板。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 进门三件套的“默认值”设定",
+                                                                "content": "新进来的用户，必须要有一个默认的家和样子：\n<ul><li><strong>语言环境 (Locale)</strong>：默认是中文还是英文？</li><li><strong>UI 外壳 (Profile)</strong>：默认看到哪个界面的菜单？</li><li><strong>每页显示行数</strong>：报告访问列表一页看多少条数据？</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. 密码的“生与死”",
+                                                                "content": "<ul><li><strong>改密规则</strong>：新用户第一次登录时，要不要强制他修改默认密码？</li><li><strong>寿命控制</strong>：密码多久到期？到期后怎么处理？</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "4. 管理员梯队建设 (委派制)",
+                                                                "content": "<ul><li><strong>分担压力</strong>：不要把所有活儿都推给超级管理员。你可以下放权力，比如设一个“密码重置专员”，他只能帮别人改密码，不能建新账号。</li><li><strong>红线注意</strong>：这种“委派管理员”的权力是全局的，你可以限制他“能干什么”，但没法限制他“能在哪个部门干”。（注：委派权限必须在顶级域和组上分配）。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "5. 权限绑定的“黄金定律”",
+                                                                "content": "<ul><li><strong>官方强烈建议</strong>：千万不要给“个人”直接发权限（配置UI外壳、角色和报告访问）。</li><li><strong>正确姿势</strong>：把个人丢进“用户组”，把权限赋给“用户组”。通过管理组来管理个人，否则后期人员调动时，权限梳理会让你痛不欲生。</li><li><strong>迷失者的收容所</strong>：如果新建了一个人，或者把一个人踢出了原来的部门（且他没别的部门可去），系统会自动把他扔进 <code>独立用户和组</code> 这个“孤儿院”里，只有超级管理员才能去捞他。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: 超级管理员",
+                                                    "logic": "统管系统中所有最高权限的终极账号及其创建规则。",
+                                                    "explanation": "系统里的上帝视角账号。能干所有事，但也最危险。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 创建与撤销超级管理员",
+                                                            "explanation": "怎么把一个普通人变成上帝，或者把他从神坛上拉下来。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "👑 创建与撤销超级管理员 (核心提炼)",
+                                                                "subtitle": "核心逻辑：造神运动。只能由现任“神”来完成，且系统中永远不能没有“神”。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 造神的先决条件",
+                                                                        "content": "<ul><li><strong>只有魔法才能打败魔法</strong>：你必须自己先以“超级管理员”身份登录，才有资格去创建或提拔另一个超级管理员。</li><li><strong>提拔制</strong>：创建超级管理员不是凭空捏造，而是去“用户列表”里挑一个现成的人，把他的 <code>超级管理员</code> 状态拨到 <code>true</code>。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 绝对的禁忌 (为什么开关会变灰？)",
+                                                                        "content": "有些时候，开启/关闭超级管理员的开关是不让你点的（置灰状态）：\n<ul><li><strong>权限不足</strong>：你不是超级管理员。</li><li><strong>防自杀机制</strong>：你不能修改你“自己”的超级管理员状态（不能自杀也不能自封）。</li><li><strong>末代皇帝保护</strong>：当你试图撤销某人的超级管理员状态时，如果他是全系统<strong>仅存的最后一位</strong>超级管理员，系统会阻止你。每个部署必须至少保留一个超级管理员。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 官方强烈劝退声明",
+                                                                        "content": "<ul><li><strong>不要用核弹打蚊子</strong>：请勿将超级管理员帐户用于日常的业务操作。</li><li><strong>责任到人</strong>：建议为你手下的每个管理员创建专属的、权限受限的管理员账号（委派管理员），这样谁干了什么坏事系统日志里一清二楚。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "🚀 超级管理员 (上帝账号核心解析)",
+                                                        "subtitle": "核心逻辑：系统中拥有完全访问权的终极实体，也是一切权力的源头。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 绝对的统治力",
+                                                                "content": "<ul><li>对系统中的<strong>所有</strong>对象、文件夹、角色模板和组具有完全、无死角的访问权。</li><li>拥有造物主权限：可以创建普通用户、用户组，甚至创建其他的超级管理员。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 权力的下放 (委派)",
+                                                                "content": "超级管理员虽然无所不能，但官方建议不要事必躬亲。\n<ul><li>可以通过给别人分配角色模板、或赋予组管理员权限，将具体的杂活（比如建账号、改密码）下放给“委派管理员”。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. 与 OPAdministrators 组的羁绊",
+                                                                "content": "<ul><li>在系统刚装好时，超级管理员是里面<strong>唯一的活人</strong>。</li><li>超级管理员默认就是 <code>OPAdministrators</code> 这个无敌特权组的成员。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: 委派管理员许可权",
+                                                    "explanation": "权力的精细化下放。将重置密码、建账号等杂活分包给专人。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 管理员许可权的类型",
+                                                            "explanation": "系统提供的 6 种可供下放的安全管理许可权。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🛡️ 管理员许可权的类型",
+                                                                "subtitle": "核心归纳：可委派给安全域或用户组管理员的六种安全管理许可权。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "管理 (Manage)",
+                                                                        "content": "允许委派的管理员创建，修改和关联用户和组。"
+                                                                    },
+                                                                    {
+                                                                        "title": "锁定 (Lock)",
+                                                                        "content": "允许委派的管理员锁定用户帐户，阻止其登录到 IBM OpenPages 应用程序（在用户信息部分点击“锁定用户”）。"
+                                                                    },
+                                                                    {
+                                                                        "title": "解锁 (Unlock)",
+                                                                        "content": "允许委派的管理员解锁先前被锁定的用户帐户。"
+                                                                    },
+                                                                    {
+                                                                        "title": "重置密码 (Reset Password)",
+                                                                        "content": "允许委派的管理员重置用户的密码。"
+                                                                    },
+                                                                    {
+                                                                        "title": "分配角色 (Assign Role)",
+                                                                        "content": "允许委派的管理员将一个或多个角色分配给用户和组，或撤销其角色。<strong>注：此许可权仅适用于安全域。</strong>"
+                                                                    },
+                                                                    {
+                                                                        "title": "浏览 (Browse)",
+                                                                        "content": "允许委派的管理员查看该组中的用户和组。此许可权默认处于选中状态。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 分配、修改和除去组管理员许可权",
+                                                            "explanation": "如何在系统组内为指定用户赋予或撤销委派权限。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "⚙️ 分配与除去管理员许可权",
+                                                                "subtitle": "核心归纳：组管理界面中，管理员许可权分配与回收的标准操作流程。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 导航与定位",
+                                                                        "content": "<ul><li>通过 <code>管理菜单 > 用户和安全性 > 域和组</code> 进入组管理模块。</li><li>展开文件夹结构，定位并点击目标组的名称。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 分配许可权流程",
+                                                                        "content": "<ul><li>在目标组内转至 <strong>管理员和许可权</strong> 部分。</li><li>点击“添加”，搜索并选择目标用户或组。</li><li>从许可权列表中，勾选对应的管理许可权（如重置密码、锁定等），然后保存。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 除去许可权流程",
+                                                                        "content": "<ul><li>同样在 <strong>管理员和许可权</strong> 部分。</li><li>在管理用户列表中，勾选需要剥夺权限的用户或组。</li><li>点击“除去”以完全撤销其管理员权限。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "🤝 委派管理员许可权 (核心提炼)",
+                                                        "subtitle": "核心逻辑：不给整块蛋糕，只给切蛋糕的刀。精准下放特定权限，避免特权泛滥。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 权限的“极细粒度”拆分",
+                                                                "content": "你可以将管理活动像拼图一样拆解。例如：\n<ul><li><strong>员工 A</strong>：只能专门负责“重置密码”。</li><li><strong>员工 B</strong>：只能“锁定/解锁用户”。</li><li><strong>员工 C</strong>：只能“创建用户和分配角色”。</li></ul>这保证了没有一个人拥有过大的权力。"
+                                                            },
+                                                            {
+                                                                "title": "2. 授权范围与传承 (你有才能给)",
+                                                                "content": "<ul><li><strong>传承原则</strong>：你只能把自己拥有的权限分配给其他管理员。</li><li><strong>向下辐射</strong>：如果一个部门（父组）下有多个子部门（子组），你也可以为每个子组单独委派管理员。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. ⚠️ 离谱的系统机制：解绑不回收",
+                                                                "content": "<strong>【大坑预警】</strong>：如果你把一个管理员从某个“安全域”或“组织组”里踢出去（解除关联），他在系统里依然会<strong>保留</strong>所有的用户管理特权！系统不会自动撤销他的权力，必须手动去“分配/除去管理员许可权”页面回收。"
+                                                            },
+                                                            {
+                                                                "title": "4. 管理权 ≠ 数据查看权 (权限隔离)",
+                                                                "content": "把某人设为某个域的管理员，只代表他能管这个域里的“人和账号”。\n<ul><li><strong>数据隔离</strong>：这并不会自动授予他查看该域底下具体业务数据（对象）的“读/写”权限。系统将“管人的权力”和“看数据的权力”做了物理隔离。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "5. 分配后的“隐身”现象",
+                                                                "content": "<ul><li>一旦将管理员许可权分配给某用户，他的名字就会从普通的“用户选择器”列表中消失。</li><li>如果要修改这类“隐藏角色”的权限，必须进入专门的 <code>分配，修改和除去组上的管理员许可权</code> 页面进行操作。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: LDAP 和用户供应",
+                                                    "logic": "与企业域控(LDAP)服务器的集成配置，实现自动抓取人员信息。",
+                                                    "explanation": "配置系统如何连接公司LDAP以预先填充用户信息。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 将 LDAP 证书导入本地信任库",
+                                                            "explanation": "基于 SSL/TLS 协议下的必要安全握手配置。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🔐 导入 LDAP 证书",
+                                                                "subtitle": "核心归纳：建立 OpenPages 服务器与基于 SSL/TLS 的 LDAP 服务器之间的安全通信。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 准备工作",
+                                                                        "content": "目标 LDAP 服务器必须处于运行并在相应端口监听状态。可通过浏览器或 <code>openssl</code> 获取其证书。"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 证书导入命令 (keytool)",
+                                                                        "content": "需使用 <code>keytool -importcert</code> 命令导入，关键参数包括：\n<ul><li><code>-alias</code>：证书别名</li><li><code>-file</code>：证书文件名</li><li><code>-keystore</code>：应用程序服务器上信任库的完整路径（例如 <code>&lt;OP_HOME&gt;/wlp-usr/.../key.p12</code>）</li><li><code>-storepass</code>：信任库密码</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 生效要求",
+                                                                        "content": "导入后必须<strong>重新启动 OpenPages 应用程序服务</strong>。如果部署了多台应用程序服务器，需在每台服务器上重复此步骤。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 为用户供应配置 LDAP 访问权",
+                                                            "explanation": "前端管理界面中配置 LDAP 服务器URL与属性映射。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🔗 配置 LDAP 访问权",
+                                                                "subtitle": "核心归纳：定义服务器地址及 LDAP 字段到 OpenPages 用户属性的映射关系。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 权限与前置条件",
+                                                                        "content": "<ul><li>操作者必须是 <code>OPAdministrators</code> 组的成员，且具备 <code>管理 > LDAP 服务器</code> 的应用程序许可权。</li><li>如果使用 SSL/TLS，必须先完成信任库证书导入的前置任务。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 服务器参数配置",
+                                                                        "content": "<ul><li>导航至 <code>管理菜单 > 用户和安全性 > 用户 LDAP 配置</code> 并新建。</li><li><strong>URL 规范</strong>：输入 LDAP 字符串，如 <code>ldap://&lt;hostname&gt;:389</code> 或 <code>ldaps://&lt;hostname&gt;:636</code>。</li><li>支持配置多个 LDAP 服务器，搜索结果会汇总展示（受限于各自的最大结果数配置）。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 属性映射 (Mapping)",
+                                                                        "content": "<ul><li>必须输入要映射到 OpenPages 用户的 <code>名字</code>、<code>中间名</code> 和 <code>姓氏</code> 的 LDAP 属性名称。</li><li><em>注：OpenPages 缺省不显示中间名且不存储，若需显示需通过修改 <code>com.display.name.format</code> 代码实现。</em></li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "🌐 LDAP 和用户供应",
+                                                        "subtitle": "核心归纳：通过集成 LDAP 服务器实现创建用户时的信息预填充。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 核心功能描述",
+                                                                "content": "配置对 LDAP 服务器的访问权后，在创建新用户时可以搜索 LDAP 服务器的人员列表。选中人员后，“创建用户”页面会自动预先填充来自 LDAP 的用户信息。"
+                                                            },
+                                                            {
+                                                                "title": "2. 关键界限声明",
+                                                                "content": "<strong>注：</strong>此处的用户供应 LDAP 配置<strong>不影响</strong>用户的 LDAP 身份认证 (Authentication) 过程，仅用于属性抓取。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: 供应用户",
+                                                    "logic": "统筹用户全生命周期的账号管理。建人、改人、复制人。",
+                                                    "explanation": "决定怎么建人、怎么改账号信息、怎么抄别人的权限。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 创建用户帐户",
+                                                            "explanation": "系统建号的标准操作。含密码规则与 LDAP 对接选项。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "👤 创建用户帐户",
+                                                                "subtitle": "核心归纳：创建新账号的标准规范与硬性限制。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 命名与密码强规则",
+                                                                        "content": "<ul><li><strong>用户名</strong>：区分大小写（MyName 与 myname 视为不同），最长 256 字符。支持字母数字及特定特殊字符。</li><li><strong>密码</strong>：最长 32 个字符且<strong>绝对不能包含空格</strong>。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 身份认证机制 (Authentication)",
+                                                                        "content": "创建时必须指定登录通道：\n<ul><li><strong>本机 (Native)</strong>：通过 OpenPages 自带机制认证。</li><li><strong>LDAP 服务器</strong>：如公司有域控，可配置走 LDAP 验证（注：此时必须勾选“密码永不到期”）。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 捷径：LDAP与复制访问源",
+                                                                        "content": "<ul><li>如果启用了“从 LDAP 服务器复制用户”，可以一键抓取域账号信息。</li><li>可以通过“复制访问源”功能，抄袭另一个老员工的UI外壳、角色和部门配置（不会复制个人过滤器）。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 修改用户帐户",
+                                                            "explanation": "调整老员工账号。支持禁用与锁定等风控操作。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🔧 修改用户帐户",
+                                                                "subtitle": "核心归纳：针对已有账号的属性调整及生命周期管理。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 操作红线 (不能碰的人)",
+                                                                        "content": "你<strong>无法禁用或锁定自己</strong>、系统默认超级管理员（OpenPagesAdministrator）或底层 OPSystem 用户。"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 禁用 vs 锁定 (风控机制)",
+                                                                        "content": "<ul><li><strong>禁用用户</strong>：员工离职时的标准操作。禁用后不但无法登录，且会在选择器里灰显（系统内无法彻底删除用户，只能禁用）。</li><li><strong>锁定用户</strong>：通常是因为输错密码次数过多触发，锁定后仍算活动状态且能在列表被选中。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 专用服务账号规范",
+                                                                        "content": "对于 Loss Event Entry 这类系统专用接口用户：\n<ul><li><strong>绝对禁令</strong>：绝不能在 OpenPages 界面里改密码！必须用配套的配置工具。</li><li><strong>配置要求</strong>：必须勾选“用户无法更改密码”和“密码永不到期”。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "4. 角色剥离的特殊逻辑",
+                                                                        "content": "你可以剥离“直接分配”给个人的角色。但如果是通过“部门”（组）继承来的角色，你无法在个人层面剥离，且除去角色并不会把人踢出该域。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 将访问权从一个用户复制到另一个用户",
+                                                            "explanation": "高级的抄作业大法，将某个用户的全套权限原样赋给新员工。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "👯 复制用户访问权 (抄作业)",
+                                                                "subtitle": "核心归纳：快速克隆权限模板，极大降低新建账号的配置成本。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 严苛的前置权限要求",
+                                                                        "content": "要执行这个高级操作，你必须同时在顶级组拥有“管理”许可权，且在根安全域拥有“分配角色”和“管理”许可权。否则你连这个按钮都看不到。"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 哪些东西会被复制？",
+                                                                        "content": "<ul><li><strong>支持克隆的属性</strong>：语言环境 (Locale)、UI 概要文件 (Profile)、组成员资格 (部门)、直接角色分配、以及报告文件夹访问权。</li><li><strong>不支持克隆的属性</strong>：用户的“个人过滤器”。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 底层机制与来源控制",
+                                                                        "content": "管理员可以从底层修改注册表，来决定：能否把“已经离职禁用（不活动）的用户”当作模板源？以及复制时到底是“追加合并”还是“暴力覆盖”现有属性。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "🛠️ 供应用户",
+                                                        "subtitle": "核心归纳：统筹用户生命周期的三大核心动作（新建、修改、复制）。",
+                                                        "points": [
+                                                            {
+                                                                "title": "权限与功能的映射",
+                                                                "content": "能做什么动作（如管密码、改部门），完全取决于上级给你委派了哪些“管理员许可权”。不同的委派管理员看到的供应界面选项是完全不同的。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 创建组织组",
+                                                    "explanation": "建一个部门容器，用于打包人员与继承权限。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "📁 创建组织组",
+                                                        "subtitle": "核心归纳：建立系统内的人员收纳箱，以实现权限的批量继承。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 组的本质与继承性",
+                                                                "content": "组是一个容器，里面不仅能装人，还能嵌套装其他的组。最重要的是：被装进去的实体会自动继承该组挂载的应用程序许可权。"
+                                                            },
+                                                            {
+                                                                "title": "2. 创建路径与托底归属",
+                                                                "content": "<ul><li>在 <code>管理菜单 > 用户和安全性 > 域和组</code> 中操作。</li><li>系统强制要求必须有层级归属：如果没有更高级别的组作为父级，系统要求必须将新组挂载到 <code>工作流程，报告和其他</code> 这个特殊根节点下。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 关联和取消关联组",
+                                                    "explanation": "怎么把一个部门挂到另一个部门底下，或者踢出来。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🔗 关联和取消关联组",
+                                                        "subtitle": "核心归纳：调整组织架构的层级关系及孤儿组的流放机制。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 基本操作",
+                                                                "content": "你可以将一个组挂载为另一个组的下属，也可以将其踢出。即使解除关联，该组仍然存在于系统的组选择器库中。"
+                                                            },
+                                                            {
+                                                                "title": "2. 孤儿组的“流放地” (底层机制)",
+                                                                "content": "<strong>【关键机制】</strong>：当你强行解除一个组的关联，且该组在全系统内没有任何其他父级归属时，系统不会将其删除，而是会自动把它“流放”到 <code>工作流程，报告和其他 > 独立用户和组</code> 这个特殊的孤儿院里。且你不能直接在这个孤儿院里进行手动的增删操作。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 定义应用程序许可权",
+                                                    "explanation": "系统控制“谁能看哪些单据的什么按钮”的终极逻辑。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🔑 定义应用程序许可权",
+                                                        "subtitle": "核心归纳：通过“角色模板”给对象下发权限矩阵，控制最终的按钮可见性。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 首选方案：角色模板 (Role Templates)",
+                                                                "content": "这是分配权限的绝对核心渠道。当把一个角色分配给某人或组时，他们就自动获得了这套模板里的所有应用程序许可权（配合 ACL 共同生效）。"
+                                                            },
+                                                            {
+                                                                "title": "2. 权限的“叠加累积效应”",
+                                                                "content": "<ul><li>如果一个人身兼多职（被分配了多个角色），他的权限是<strong>累加</strong>的。</li><li>权限跟着“角色”走，而不是跟着安全上下文点走。例如，如果有针对某个对象的“读”许可权和“审计跟踪”应用许可权，那么用户就能看到该对象的“活动”选项卡。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. 历史包袱 (组织组直接定义)",
+                                                                "content": "系统还保留了直接给组织组定义权限的功能。但这仅仅是为了兼容早期老版本的客户升级，目前通常不再推荐此做法。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: 应用程序权限类型 (权限字典)",
+                                                    "logic": "系统内所有的功能开关清单。控制用户能点开哪些菜单和执行哪些动作。",
+                                                    "explanation": "系统里的钥匙串大全。决定了你能不能改底层的配置、能不能接外部数据，或者能不能用AI翻译。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 基础环境与系统管理权限",
+                                                            "explanation": "偏向 IT 和底层运维的权限开关。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "⚙️ 基础环境与系统管理",
+                                                                "subtitle": "核心归纳：涉及系统全局运行状态、数据搬运与底层配置的权限。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 数据导入与环境迁移",
+                                                                        "content": "<ul><li><strong>FastMap</strong>：允许通过 Excel 批量导入对象数据，或查看导入历史。</li><li><strong>Export/ImportConfiguration</strong>：允许访问环境迁移工具，在不同系统（如测试环境到生产环境）间导出/导入配置项。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 全局参数与安全机制",
+                                                                        "content": "<ul><li><strong>加密密钥库</strong>：管理底层加密机制。</li><li><strong>LDAP 服务器</strong>：配置连接企业域控进行人员同步。</li><li><strong>设置与日志</strong>：管理系统级键值对参数以及查看应用服务器日志文件。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 界面文本本地化",
+                                                                        "content": "<strong>应用程序/对象文本</strong>：允许查看和编辑特定语言环境的标签和文案。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 数据建模与业务逻辑配置权限",
+                                                            "explanation": "给实施顾问或超级管理员用的建表、配规则的权限。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🏗️ 数据建模与业务逻辑配置",
+                                                                "subtitle": "核心归纳：定义业务怎么跑、页面怎么长、数据怎么算的权限群。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 核心架构定义",
+                                                                        "content": "<ul><li><strong>对象类型与字段组</strong>：定义系统中有哪些表（如风险、控制）及其包含的字段。</li><li><strong>对象概要文件</strong>：管理基于配置文件的 UI 展现。</li><li><strong>以任务为中心的 UI</strong>：允许在视图设计器 (View Designer) 中创建和发布视图界面。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 自动化与业务流转",
+                                                                        "content": "<ul><li><strong>工作流程 (Workflow)</strong>：创建工作流定义、终止实例。</li><li><strong>规则引擎与计算</strong>：配置 GRC 计算逻辑及监管活动规则。</li><li><strong>调度程序 (Scheduler)</strong>：管理后台计划任务作业。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 报告与分析",
+                                                                        "content": "<ul><li><strong>报告框架、周期与模式</strong>：处理系统报告的基础设施配置，包括对象的周期性重置行为。</li><li><strong>仪表板 (Dashboard)</strong>：管理解决方案配置下的仪表板布局。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: AI认知与外部订阅源权限",
+                                                            "explanation": "控制对 IBM Watson AI 能力以及外部合规数据源的访问。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🤖 AI认知与外部订阅源",
+                                                                "subtitle": "核心归纳：扩展系统边界的高级集成能力开关。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 外部威胁与合规数据订阅 (Feeds)",
+                                                                        "content": "允许在调度程序中配置并拉取外部数据，例如：<strong>TRRI, WK, Assent, RapidRatings, RiskLens, RiskRecon, SecurityScorecard, SupplyWisdom</strong> 等各类监管和风险数据源。"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. Watson AI 集成",
+                                                                        "content": "<ul><li><strong>Watson 助手与翻译</strong>：控制对 Watson Assistant 聊天界面和语言翻译(Language Translator)功能的访问。</li><li><strong>高级分析</strong>：定制机器学习模型、映射和分类法建议的开关。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 用户级特定操作权限",
+                                                            "explanation": "针对终端用户的特殊操作控制，如看日志、批量改数据等。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "👤 用户级特定操作权限",
+                                                                "subtitle": "核心归纳：控制业务用户在具体对象上的高阶交互行为。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 审计跟踪 (Audit Trail)",
+                                                                        "content": "允许用户在“任务视图”查看对象的历史变更记录。<br><em>注：复制对象时不会连带复制历史记录（视作新对象）；且若为对象新增字段，历史记录中会呈现“空白到空白”的变更。</em>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 高级查询与报表工具",
+                                                                        "content": "<strong>IBM CommandCenter Studio / Cognos Analytics</strong>：允许跳转至 Cognos 进行报表、多维数据集的创建与分发。"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 对象互动与其他控制",
+                                                                        "content": "<ul><li><strong>批量更新所有字段</strong>：允许在网格视图中进行数据的批量编辑。</li><li><strong>对象注释 (评论)</strong>：如果系统开启了此功能，允许用户在对象的任务/管理选项卡进行留言评论。</li><li><strong>查看锁定</strong>：仅允许查看对象是否被锁定，<strong>不代表</strong>有权锁定或解锁对象（这需要单独的锁定/解锁权限）。</li><li><strong>查看管理选项卡</strong>：允许在对象实例页查看底层的管理属性。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 非 SOX 类特定权限 (系统底层与API)",
+                                                            "explanation": "不属于常规业务管控，而是更底层的开发、调试及文件强制操作权限。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🛡️ 非 SOX 类特定权限",
+                                                                "subtitle": "核心归纳：突破常规业务边界，面向底层系统维护、API调用和强制解锁的高级能力。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 系统全局管理",
+                                                                        "content": "<ul><li><strong>系统管理方式 (SAM)</strong>：允许开启/关闭系统维护模式。</li><li><strong>归档管理与增强错误信息</strong>：允许复原文档版本和查看详细的底层报错信息。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. API 与后台进程控制",
+                                                                        "content": "<ul><li><strong>获取进程信息</strong>：运行 ObjectManager 批量脚本或查看后台进程的必备权限。</li><li><strong>终止进程</strong>：允许通过 REST API 强行杀掉运行中的后台任务。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 强制性文件/对象操作",
+                                                                        "content": "完全无视常规的签核流程或 ACL 限制：<br><ul><li><strong>无视限制的锁定/解锁</strong>：强行锁定对象或解除他人锁定的资源子树。</li><li><strong>强制取消检出</strong>：强行取消他人占用的文件检出，且不保留其更改。</li><li><strong>重新分配主关联</strong>：改变对象的主父级归属。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "4. 报表 UI 发布权限",
+                                                                        "content": "允许在“页面和模板”配置区，手工添加新的 Cognos 报表文件夹、新页面或新模板。"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "📚 应用程序权限类型字典",
+                                                        "subtitle": "核心逻辑：所有应用程序权限均隶属于“SOX 许可权”这一大分类下，最终分配给“角色模板”并下发。",
+                                                        "points": [
+                                                            {
+                                                                "title": "重要生效机制",
+                                                                "content": "如果对应用程序许可权的更改导致了系统菜单的变化（例如突然有权看某个配置菜单了），<strong>该更改不会即时生效</strong>，必须要求用户注销并重新登录后才能看到菜单的改变。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📂 Level 6: 密码策略与安全强控",
+                                                    "logic": "统管系统原生账号的密码复杂度与生命周期。",
+                                                    "explanation": "定规矩：密码多长、多久过期、必须要包含什么特殊符号。",
+                                                    "level": 6,
+                                                    "children": [
+                                                        {
+                                                            "name": "📄 Level 7: 强密码规则 (配置项)",
+                                                            "explanation": "设置密码的字符组限制及警报天数。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🔐 密码策略与字符规则",
+                                                                "subtitle": "核心归纳：在 <code>系统配置 > 设置 > 平台 > 安全 > 密码</code> 中配置的原生防御墙。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 单点登录 (SSO) 的绝对覆盖",
+                                                                        "content": "<strong>【大前提】</strong>：如果系统接了 LDAP 或 Active Directory 单点登录，这里的密码策略会全部失效！密码行为将完全由公司内部的 IT 策略接管。"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. 强策略-字符组 (规则引擎)",
+                                                                        "content": "你可以定义 1-4 个字符组（比如字母组、数字组、特殊符号组）。<br><ul><li>如果启用了强策略，用户密码必须包含每个非空组里的至少一个字符。</li><li><strong>⚠️ 致命禁忌</strong>：绝对不能把半角逗号 <code>,</code> 作为必需字符加入强密码组中！</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 常规防线设置",
+                                                                        "content": "<ul><li><strong>长度双极</strong>：设置密码的最小长度（缺省 6）和最大长度（缺省 32）。</li><li><strong>临期警告</strong>：<code>通知天数之前</code> 参数可以设置密码过期前几天开始在登录页弹窗警告。</li><li><strong>加密管理员</strong>：指定专门有权修改底层密码加密算法的用户名。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "📄 Level 7: 更新密码加密算法 (UPEA 工具)",
+                                                            "explanation": "系统级的密码加密方式重构。从弱加密升到强加密的命令行大法。",
+                                                            "level": 7,
+                                                            "details": {
+                                                                "title": "🛡️ 密码底层加密重构 (UPEA)",
+                                                                "subtitle": "核心归纳：使用底层命令行工具将密码算法从 3DES/自定义 升级为更安全的 AES 或 PBKDF2。",
+                                                                "points": [
+                                                                    {
+                                                                        "title": "1. 严苛的前置准备 (生死线)",
+                                                                        "content": "这是一项极其危险的全局操作：\n<ul><li><strong>必须进行数据库完全备份</strong>，并确保没有终端用户登录。</li><li><strong>注册提供程序</strong>：必须在底层的 <code>java.security</code> 文件中强行写入并注册 <code>BouncyCastleProvider</code>。</li><li><strong>明文还原</strong>：必须把 <code>aurora.properties</code> 和 <code>op-backup-restore.env</code> 里的密码全手动改回明文，等服务重启时让系统用新算法重新加密。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "2. UPEA 核心运行模式 (-Mode)",
+                                                                        "content": "<ul><li><strong>模式 CA (Change Algorithm)</strong>：大换血，将算法切换至 AES 或更高级的 PBKDF2 单向散列。</li><li><strong>模式 CK (Change Key)</strong>：定期更换 AES 算法的加密密钥。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "3. 关键命令行参数 (语法)",
+                                                                        "content": "执行 <code>UpdatePasswordEncryptionAlgorithm</code> 时必须传入：\n<ul><li><code>-AlgorithmName</code>：指定目标算法（AES 或 PBKDF2）。</li><li><code>-ProviderName / Class</code>：由于版本升级，必须配置为 <strong>BC</strong> 及对应的类名。</li><li><code>-Username / -Password</code>：执行者必须是系统设置中指定的“加密管理员”。</li><li><code>-KeySize</code>：长度死板规定（PBKDF2 必填 256，AES 必填 128）。</li><li><code>-TempPassword</code>：可以借机给全员下发统一的临时密码，强制下次登录修改。</li></ul>"
+                                                                    },
+                                                                    {
+                                                                        "title": "4. ☢️ PBKDF2 特殊警告 (单向散列的代价)",
+                                                                        "content": "如果你将算法升级为 <strong>PBKDF2</strong>，请牢记以下红线：<br><ul><li><strong>不可逆与无法恢复</strong>：更改为 PBKDF2 后无法切回 AES。因为是单向散列，一旦用户密码丢失，管理员和 IBM 都无法恢复（解密），只能强行重置！</li><li><strong>局部生效限制</strong>：虽然用户密码升级到了 PBKDF2，但系统配置文件（属性文件）里的密码依然会继续使用 AES 算法加密。</li><li><em>技术查询</em>：可通过查询数据库 <code>ENCRYPTIONMODULES</code> 表中 <code>INACTIVE=0</code> 的记录来确认当前生效的算法。</li></ul>"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ],
+                                                    "details": {
+                                                        "title": "🔒 密码安全架构",
+                                                        "subtitle": "核心逻辑：不依赖外部验证时的最后一道门槛。",
+                                                        "points": [
+                                                            {
+                                                                "title": "统一开关机制",
+                                                                "content": "整个密码策略受到总开关 <code>已启用</code> 的控制（缺省竟为 false）。而具体到复杂度校验，则受子开关 <code>强策略-已启用</code> 的二次控制。"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ],
+                                            "details": {
+                                                "title": "👥 用户，组和域 (核心机制提炼)",
+                                                "subtitle": "核心逻辑：构建“人 -> 组 -> 域”的三级管控体系，分配系统里的“谁能看什么”和“谁能做什么”。",
+                                                "points": [
+                                                    {
+                                                        "title": "1. 两大顶级收纳箱（系统最高层分类）",
+                                                        "content": "<ul><li><strong>安全域 (Security Domains)</strong>：系统用来分配管理权限的“独立大区”。在这个大区里创建部门和人，由该区的管理员统一管辖。</li><li><strong>工作流程、报告和其他</strong>：全局公共组件的收纳箱。系统自带的无敌特权组 <code>OPAdministrators</code> 就住在这里，一旦把人拉进这个组，他立刻获得系统特权。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "2. 组与域的嵌套关系 (组织架构搭建)",
+                                                        "content": "<ul><li><strong>创建组织组</strong>：相当于建“部门”。组里可以装普通用户，也可以嵌套包含其他的组。</li><li><strong>关联绑定</strong>：把配置好的“组织组”扔进对应的“安全域”里，组里的人就会自动继承相应的一套权限体系。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "3. 管理员的阶级划分 (权限委派机制)",
+                                                        "content": "建账号不是谁都能建的，系统定义了严格的阶级：\n<ul><li><strong>超级管理员 (Super Administrator)</strong>：上帝视角，对系统中所有对象、文件夹和组拥有绝对的完全访问权。</li><li><strong>委派管理员 (Delegated Administrator)</strong>：被下放权力的“专职管理员”。比如你可以专门设一个只允许“重置密码”的管理员，或者只能“锁定/解锁用户”的管理员，防止最高特权被滥用。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "4. 账号接入与安全防线",
+                                                        "content": "<ul><li><strong>LDAP 直连打通</strong>：不用手动一个一个建账号，可以直接接入企业的 LDAP 服务器，自动同步公司人员名单。</li><li><strong>密码与底层加密</strong>：支持强制开启强密码校验（字母、数字、符号混编）。如果你觉得旧版的密码加密容易被黑，还能用专门的 <strong>UPEA 工具</strong>一键更新整个系统的密码加密算法。</li></ul>"
+                                                    },
+                                                    {
+                                                        "title": "5. 应用程序权限 (Application Permissions)",
+                                                        "content": "这决定了用户登录后“能点什么功能按钮”。\n<ul><li><strong>粒度控制</strong>：通过给组织组或角色模板挂载权限，控制他们能不能“锁定对象”、“查看审计日志”、“建报告”等。</li><li><strong>分类</strong>：绝大多数核心业务权限都在 <strong>SOX 许可权</strong> 标签下；另有一部分偏系统级的操作归属在非 SOX 分类中。</li></ul>"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "name": "📂 Level 5: 安全性体系 (Security)",
+                                            "logic": "统管全系统的访问权限与数据隔离。",
+                                            "explanation": "系统里的铜墙铁壁。决定了谁能看什么数据、谁能改什么字段。",
+                                            "level": 5,
+                                            "children": [
+                                                {
+                                                    "name": "📄 Level 6: 权限三级跳 (安全级别全景)",
+                                                    "explanation": "系统实现数据隔离的三层护城河：角色、记录、字段。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🛡️ 权限三级跳 (安全级别)",
+                                                        "subtitle": "核心归纳：从粗到细，逐步收紧或扩展数据的访问控制边界。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 基于角色的安全性 (大锅饭)",
+                                                                "content": "<strong>【基础】</strong>最常规的安全控制。给一个角色模板分配权限（如读写删），角色里的所有人自动继承这套权限。<em>原则：尽可能用角色安全性满足大部分需求，因为性能开销最小。</em>"
+                                                            },
+                                                            {
+                                                                "title": "2. 记录级别安全规则 (开小灶)",
+                                                                "content": "<strong>【精细化控制】</strong>用于控制对同一个文件夹下<strong>不同行记录</strong>的访问。例如两个部门共享一个文件夹，但只能看各自的数据。<br><em>注：它将“写入”权限拆分为了“创建”和“更新”，控制更细致。</em>"
+                                                            },
+                                                            {
+                                                                "title": "3. 字段级别安全规则 (显微镜)",
+                                                                "content": "<strong>【极致管控】</strong>甚至可以控制某一行记录里的<strong>某一个具体字段</strong>（如财务金额）是否对某人可见。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 性能与规则博弈 (RESTRICT vs EXTEND)",
+                                                    "explanation": "怎么配置规则能让系统跑得快？两种高级规则的性能对决。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "⚡ 安全规则与性能博弈",
+                                                        "subtitle": "核心归纳：安全规则开销极大，必须在安全与性能之间取得平衡。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 读访问 (Read) 的性能权重",
+                                                                "content": "最关键的访问控制是<strong>读取 (Read)</strong>，因为它会影响系统里的每一个动作（如导航、拉报表）。读规则的设计必须极其简单、低成本！"
+                                                            },
+                                                            {
+                                                                "title": "2. RESTRICT 规则 (先砍后筛)",
+                                                                "content": "<strong>【推荐】</strong>系统先用基于角色的权限过滤掉大批无权数据，然后再用 RESTRICT 规则对剩下的小部分数据进行更严苛的二次筛选。因为处理的数据量小了，性能相对较好。"
+                                                            },
+                                                            {
+                                                                "title": "3. EXTEND 规则 (全盘扫描)",
+                                                                "content": "<strong>【慎用】</strong>系统必须对每一条记录进行检查，看用户是否通过角色<strong>或</strong>规则获得了访问权。这种方式扫描量极大，但有时对于跨对象的复杂字段检查，写一个简单的 EXTEND 反而比绕弯路的 RESTRICT 高效。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 核心控制枢纽 (安全上下文点)",
+                                                    "explanation": "权限到底挂在组织架构的哪一节树枝上？",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "📍 安全上下文点 (Context Points)",
+                                                        "subtitle": "核心归纳：对象层次结构中用来挂载“角色”的那个锚点。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 默认锚点：业务实体",
+                                                                "content": "系统默认将<strong>业务实体 (SOXBusEntity)</strong>作为安全点。给业务实体分配一个角色后，该实体下级的所有对象（如流程、风险、控制）都会自动继承这个角色的权限。"
+                                                            },
+                                                            {
+                                                                "title": "2. 扩展安全上下文点 (下沉锚点)",
+                                                                "content": "为了更精细的控制，可以把安全点往下放，比如放到“业务实体-流程”。此时用户只能看到特定的流程及下属数据，而<strong>对父级业务实体只有“浏览”权限</strong>（无法查看业务实体详细信息）。"
+                                                            },
+                                                            {
+                                                                "title": "3. ☢️ 报表框架的三角关系陷阱",
+                                                                "content": "如果对象有多个父级（比如“风险”同时属于“流程”和“子流程”），这就构成了<strong>三角关系</strong>。在出报表时，因为字段被揉在一个查询主题里，用户<strong>必须同时拥有两个父级（流程和子流程）的显式读权限</strong>才能看数据，光有隐式的浏览权限是不够的！"
+                                                            },
+                                                            {
+                                                                "title": "4. 实体移动与复制机制",
+                                                                "content": "<ul><li><strong>移动</strong>：移动业务实体时，原有的角色分配和权限保持不变（建议用“实体移动/重命名”实用程序跑批处理）。</li><li><strong>复制</strong>：复制实体时，系统会为其自动建一个空的安全域组，但原本父级上的角色访问控制会自动对新实体生效。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 权限冲突大决战 (ACL 结算机制)",
+                                                    "explanation": "当一个人被分配了多个互相矛盾的角色时，听谁的？",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "⚔️ 访问控制 (ACL) 冲突结算规则",
+                                                        "subtitle": "核心归纳：当多种权限设置撞车时，系统遵循“最严苛”与“显式优先”两大铁律。",
+                                                        "points": [
+                                                            {
+                                                                "title": "三种状态值定义",
+                                                                "content": "<ul><li><code>已授予 (Granted)</code>：显式给全权。</li><li><code>被拒绝 (Denied)</code>：显式封杀，优先级极高，会覆盖所有继承权限。</li><li><code>未指定 (Unspecified)</code>：没表态，系统默认值。限制较小，建议多用此值代替“被拒绝”。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "战局 1：显式 vs 显式（硬碰硬）",
+                                                                "content": "<strong>【最严苛法则】</strong>如果一个人同时拥有 <code>已授予</code> 和 <code>被拒绝</code> 两个角色，<strong><code>被拒绝</code> 永远获胜</strong>！"
+                                                            },
+                                                            {
+                                                                "title": "战局 2：显式 vs 未指定",
+                                                                "content": "<strong>【显式优先】</strong>如果一个角色是 <code>已授予</code>，另一个是 <code>未指定</code>，那么 <strong><code>已授予</code> 生效</strong>。"
+                                                            },
+                                                            {
+                                                                "title": "战局 3：全是未指定",
+                                                                "content": "<strong>【默认封杀】</strong>如果没有显式授予任何权限（全是未指定），那么<strong>访问被直接拒绝</strong>。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 角色模板 (管理中枢)",
+                                                    "explanation": "系统权限的“套餐包”。一次配置，全员生效。删除模板则权限瞬间回收。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🎭 角色模板 (Role Templates)",
+                                                        "subtitle": "核心归纳：将对象级的 ACL (读写删) 与全局的应用程序许可权打包，统一下发。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 权限双核驱动",
+                                                                "content": "分配角色不仅授予在特定文件夹（安全上下文点）下的 <strong>ACL 访问权</strong>，还会将模板中定义的<strong>应用程序许可权</strong>叠加给用户（且应用程序许可权是全局生效的）。多角色叠加时取合集。"
+                                                            },
+                                                            {
+                                                                "title": "2. 自动繁衍与一键撤销",
+                                                                "content": "<ul><li><strong>修改传播</strong>：一旦修改模板里的权限，所有已分配此角色的用户权限<strong>瞬间同步更新</strong>。</li><li><strong>删除撤销</strong>：只有超级管理员能删除模板。删除后，所有使用该模板的权限分配会自动、彻底被撤销！</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "3. 委派管理边界",
+                                                                "content": "上级安全域的管理员，只能向其下属的安全域或用户分配/撤销角色，无法跨区操作。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 安全规则公式架构 (硬核逻辑)",
+                                                    "explanation": "揭秘 RESTRICT 和 EXTEND 底层运行的数学逻辑（AND 与 OR 的差别）。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🧮 记录级安全规则的底层公式",
+                                                        "subtitle": "核心归纳：理解系统是如何结算基于角色的安全性 (RBS) 和具体安全公式的。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. RESTRICT 规则的 AND 逻辑 (做减法)",
+                                                                "content": "<strong>公式：</strong> <code>If (RBS=True AND RESTRICT_RULE_RESULT=True)</code><br><strong>解析：</strong>不仅角色必须给权限，且这条规则也必须算出来是 True，你才能访问。典型的<strong>业务隔离</strong>场景：两个组共享一个文件夹，但用公式 <code>END_USER IN GROUP('xxx')</code> 来限制只能看自己组的数据。"
+                                                            },
+                                                            {
+                                                                "title": "2. EXTEND 规则的 OR 逻辑 (做加法)",
+                                                                "content": "<strong>公式：</strong> <code>If (RBS=True OR EXTEND_RULE_RESULT=True)</code><br><strong>解析：</strong>只要角色给了权限，<strong>或者</strong>这条规则算出来是 True，你就能访问。典型的<strong>越级特权</strong>场景：虽然角色没给权限，但如果系统查出你是这条数据的“所有者 (Owner)”，依然用 EXTEND 破例给你开绿灯。"
+                                                            },
+                                                            {
+                                                                "title": "3. ⚠️ 混合双打的数学陷阱 (致命误区)",
+                                                                "content": "当同时存在限制和扩展规则时，很多管理员误以为公式是 <code>((RBS 且 RESTRICT) 或 EXTEND)</code>。<strong>错！</strong><br>系统真实的底层解析是：<code>(RBS 且 RESTRICT) <strong>或 (RBS 或 EXTEND)</strong></code>。<br>这意味着：即便你的 RESTRICT 规则无情地拒绝了某人，但只要他的 EXTEND 规则触发了 True，他<strong>依然能获得访问权！</strong>（加法特权的优先级极高）"
+                                                            },
+                                                            {
+                                                                "title": "4. EXTEND 实战三大场景",
+                                                                "content": "<ul><li><strong>异常/豁免管理</strong>：普通人只能看自己提交的异常，但 IT 审查员用 EXTEND 规则获得看全公司异常的特权。</li><li><strong>隐私事件专员</strong>：无视组织架构层级，直接赋予隐私专员看所有涉密事件的权限。</li><li><strong>跨部门办案</strong>：A 部门的问题派发了给 B 部门的整改任务，B 部门的人靠 EXTEND 越权查阅 A 部门的原始问题详情。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 对象操作底线 (最小访问控制矩阵)",
+                                                    "explanation": "创建、读取、更新、关联、删除，这五大动作到底需要哪些基础权限？",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "📐 最小访问控制底线",
+                                                        "subtitle": "核心归纳：打破“读写就行”的常识，揭示动作背后牵扯的父子节点权限联动。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 创建 (Create) 的苛刻条件",
+                                                                "content": "创建并不是“在子节点有写入权限”就行。<br><ul><li><strong>父节点</strong>：你必须对父对象有 <code>读取</code> 和 <code>关联</code> 权限。</li><li><strong>子节点 (新建对象)</strong>：你必须通过<strong>基于角色的安全性 (RBS)</strong> 获得 <code>读取</code>、<code>写入</code> 和 <code>关联</code> 权限。<em>（注：不能用记录级安全规则来赋权，必须是 RBS！）</em></li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 关联 (Associate)",
+                                                                "content": "要将两个对象连起来，你必须对 <strong>父节点</strong> 拥有 <code>读取</code> 和 <code>关联</code>，并且对 <strong>子节点</strong> 也拥有 <code>读取</code> 和 <code>关联</code>（且子节点同样必须来源于 RBS）。"
+                                                            },
+                                                            {
+                                                                "title": "3. 删除 (Delete)",
+                                                                "content": "最凶险的操作。你需要对 <strong>父节点</strong> 拥有 <code>读取</code> 和 <code>关联</code>，并对 <strong>子节点</strong> 拥有 <code>读取</code>、<code>删除</code> 和 <code>关联</code>。<br>如果是删除带有层级嵌套的自包含对象（如子流程），针对该子对象的权限全部必须源自 RBS。"
+                                                            },
+                                                            {
+                                                                "title": "4. 纯自身操作 (读取与更新)",
+                                                                "content": "相对简单，不牵扯父子联动。<br><ul><li><strong>读取</strong>：对对象自身有 <code>读取</code> 权限即可。</li><li><strong>更新</strong>：对对象自身有 <code>读取</code> 和 <code>写入</code> 权限即可。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 字段级安全性 (显微镜控制)",
+                                                    "explanation": "细化到表单里每个字段的读写权限，以及无权限时的字段遮罩功能。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🔍 字段级别安全性 (Field-Level Security)",
+                                                        "subtitle": "核心归纳：在对象/记录权限的基础上，进一步对特定的敏感字段进行管控或遮罩。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 权限判决与“保密遮盖”",
+                                                                "content": "当字段级安全规则公式运行后：<br><ul><li><strong>公式为 True</strong>：授予该字段的 <code>只读</code> 或 <code>读取和更新</code> 权限。</li><li><strong>公式为 False</strong>：该字段会被<strong>编辑/遮罩 (Redacted)</strong>。用户依然能看到表单上的字段标题，但真实数据会被替换成诸如“保密信息 (Confidential)”之类的提示文字。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 规则叠加与冲突",
+                                                                "content": "如果一个字段上挂了多条规则，系统会使用 <strong>OR（或）</strong> 条件合并。比如规则A给了“只读”，规则B给了“读取和更新”，只要两条公式都满足，用户最终会获得“读取和更新”的最高权限。"
+                                                            },
+                                                            {
+                                                                "title": "3. ⚠️ 严禁触碰的红线",
+                                                                "content": "<ul><li><strong>系统字段免疫</strong>：不能对 <code>Name</code>, <code>Description</code>, <code>Location</code>, <code>Creation Date</code> 等核心系统字段加字段级安全规则。</li><li><strong>全局搜索泄露风险</strong>：绝对不要将加了字段级安全规则的字段纳入“全局搜索”。否则用户依然可以通过搜索推断出被遮罩的数据值！</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "4. 实战场景：按审计功能赋权",
+                                                                "content": "同一团队的审计员在系统里角色完全相同，但在 A 审计项目中 Jim 是主审（能改所有字段），Susan 是协审（只能改部分区域字段）。在 B 审计项目中角色反转。字段级安全性完美解决了这种<strong>同角色、不同数据行、不同字段可写性</strong>的复杂需求。"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 安全规则语法字典 (公式撰写指南)",
+                                                    "explanation": "编写安全规则公式时支持的各种函数、路径和运算符大全。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "📚 安全规则语法与路径字典",
+                                                        "subtitle": "核心归纳：编写公式时的合法词汇表与对象路径追溯方法。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 核心关键字 (用户与系统)",
+                                                                "content": "<ul><li><code>END_USER</code> / <code>END_USER_PROFILE</code>：当前登录用户或其概要文件。</li><li><code>IN GROUP</code> / <code>IN PROFILE</code>：判断用户是否在特定组或拥有特定概要文件属性。</li><li><code>INTENDED PARENT</code> (预期父代)：专用于<strong>创建(Create)</strong>权限判定，用于预判正准备在哪个父节点下新建数据。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "2. 动态时间函数 (日期计算)",
+                                                                "content": "支持 <code>TODAY</code>, <code>TOMORROW</code>, <code>YESTERDAY</code>。<br>最强大的是 <strong>NOW(偏移量, '单位')</strong> 函数：<br>例如 <code>NOW(5)</code> 是5天后，<code>NOW(-2, 'y')</code> 是两年前，<code>NOW(-30, 'mi')</code> 是30分钟前。"
+                                                            },
+                                                            {
+                                                                "title": "3. 关系路径穿透 (寻址技巧)",
+                                                                "content": "在公式中，你需要指定系统顺着关系树往上找还是往下找：<br><ul><li><strong>主干穿透 (PRIMARY)</strong>：只沿着最核心的汇报线找，比如 <code>主直接父代 (PRIMARY IMMEDIATE PARENT)</code> 或 <code>主子代</code>。</li><li><strong>全面扫描 (ANY)</strong>：沿着所有关联线找，比如 <code>任何父代 (ANY PARENT)</code>（包含爷爷级）或 <code>任何直接子代</code>。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "4. 字符串与逻辑运算",
+                                                                "content": "<ul><li><strong>逻辑</strong>：<code>AND</code>, <code>OR</code>, <code>NOT</code>。注意如果不加括号，优先级是 <strong>NOT > AND > OR</strong>。</li><li><strong>字符串</strong>：支持 <code>CONTAINS</code> (包含), <code>STARTS WITH</code>, <code>ENDS WITH</code>, <code>LIKE</code> (正则匹配), <code>IN</code> (集合内)。</li></ul>"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 避坑指南与最佳实践 (性能与特例)",
+                                                    "explanation": "系统管理中极易踩坑的特殊场景，如附件权限锁死、创建/读取冲突等。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "☢️ 安全规则避坑指南 (最佳实践)",
+                                                        "subtitle": "核心归纳：官方给出的性能优化建议与致命报错挽救指南。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. SOXDocument (附件) 锁死危机",
+                                                                "content": "由于系统的底层文件（如 FastMap 导入导出模板）也使用 <code>SOXDocument</code> 对象。如果你为了保护业务附件，对 SOXDocument 加了严格的读取限制，<strong>会导致全系统 FastMap 崩溃！</strong><br><strong>解法</strong>：必须在公式里强行加一段 OR 绿灯：<br><code>[SOXDocument].[System Fields].[Location] STARTS WITH '/Templates/FastMap/%'</code>"
+                                                            },
+                                                            {
+                                                                "title": "2. Create 与 Read 的先天冲突",
+                                                                "content": "如果一个对象同时配了“创建”规则和“读取(或关联)”规则，它们会互相打架导致失效。必须在“读取”规则里打个补丁，允许用户读取自己刚建好的孤立数据：<br><code>OR (NOT(FOR (Any Parent [对象]/路径 : 1=1)) AND [对象].[System Fields].[Created By] = END_USER)</code>"
+                                                            },
+                                                            {
+                                                                "title": "3. 规则性能分析指标 (Show Rule Analysis)",
+                                                                "content": "强烈建议关注以下消耗性能的“电老虎”：<ul><li><strong>向下浏览对象层次结构</strong>：顺着父节点往下查子节点非常耗时。</li><li><strong>使用 ANY 函数</strong>：尽量用 <code>Primary</code> (主干) 代替 <code>Any</code> (全部遍历)。</li><li><strong>多值字段与组求值</strong>：计算用户在不在某个多值组里开销很大。</li></ul><br><em>注：一个对象类型只能启用 <strong>1个</strong> READ 规则！</em>"
+                                                            },
+                                                            {
+                                                                "title": "4. 生命周期触发器的滞后性",
+                                                                "content": "安全规则在生命周期触发器<strong>之前</strong>进行评估。触发器可能会改掉某些字段的值，导致对象突然不符合安全规则了。官方建议：尽量用“工作流”代替老旧的“生命周期触发器”。"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        { "name": "📄 Level 5: 由 OpenPages 处理和存储的个人信息", "explanation": "隐私法合规红线。说明系统里存了哪些隐私，满足GDPR等法规要求。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "🏗️ Level 2 (呈现层): 数据建模与用户体验",
+                    "logic": "定义系统里存什么格式的数据，以及员工登录后看到的界面长什么样。",
+                    "explanation": "大厦内部的房间布局划分、墙面刷漆和定制家具。",
+                    "level": 2,
+                    "children": [
+                        {
+                            "name": "🗂️ Level 3: 数据资产结构定义",
+                            "logic": "建立底层数据库的表结构和前端输入的表单骨架。",
+                            "explanation": "定义公司要收集哪些数据，并印发“标准填报表格”。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "📝 Level 4: 业务对象与颗粒度设计",
+                                    "logic": "定义大类实体（如“风险”）和微观填空题（如“金额”）。",
+                                    "explanation": "造箱子（大类）和给箱子贴标签（填空）。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 对象类型", "explanation": "数据大类容器。比如定义“事故”、“控制”、“合规测试”这些基础模型。", "level": 5 },
+                                        { "name": "📄 Level 5: 字段和字段组", "explanation": "表单里的具体填空题。比如新建一个叫“发生日期”或“预计损失”的输入框。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "🎨 Level 3: 界面呈现与交互体验",
+                            "logic": "控制不同角色登录后的视觉布局、操作流和多语言。",
+                            "explanation": "给老板看酷炫大屏，给基层看极简填报页。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "👁️ Level 4: 动态视图与导航框架",
+                                    "logic": "千人千面的 UI 外壳和菜单分配。",
+                                    "explanation": "换皮肤和安排每个人的工作台长相。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 概要文件 (Profiles)", "explanation": "岗位专属UI壳子。决定财务和法务登录后，各自看到什么菜单。", "level": 5 },
+                                        { "name": "📄 Level 5: 视图 (Views)", "explanation": "单页排版。具体一个风险表单弹出来时，字段怎么排列好看。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置 UI", "explanation": "视觉装修。配颜色主题、做漂亮的数据仪表板（Dashboard）。", "level": 5 }
+                                    ]
+                                },
+                                {
+                                    "name": "💬 Level 4: 协作翻译与附件管理",
+                                    "logic": "处理非结构化沟通、文件上传和多语言翻译。",
+                                    "explanation": "公司的翻译官、资料柜和留言板。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 本地化文本", "explanation": "系统多国语言包。把内置的英文翻译成你们公司习惯的中文黑话。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置对象注释", "explanation": "数据发弹幕。让员工可以在某一条风险记录下面盖楼讨论。", "level": 5 },
+                                        { "name": "📄 Level 5: 系统文件管理", "explanation": "附件云盘。管理大家上传的证据文档、PDF等文件存放。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "🔄 Level 2 (逻辑层): 业务逻辑与自动化流转",
+                    "logic": "让静态的表单数据动起来，实现自动计算、跨部门流转和定时任务。",
+                    "explanation": "大厦里的自动感应电梯、流水线传送带和定时扫地机器人。",
+                    "level": 2,
+                    "children": [
+                        {
+                            "name": "🛤️ Level 3: 业务流程与自动计算",
+                            "logic": "串联上下级审批路径以及公式级的瞬间计算。",
+                            "explanation": "公文流转驿站和系统自带的 Excel 公式机。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "⚙️ Level 4: 流程编排与实时计算",
+                                    "logic": "基于条件判断的任务流向和数值变化。",
+                                    "explanation": "画审批图和写计算公式。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 配置工作流", "explanation": "画审批流转图。比如：员工提交 -> 主管批复 -> 归档。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置 GRC 计算", "explanation": "自动算分器。填入影响力和概率，系统秒算并自动填入“风险总分”。", "level": 5 },
+                                        { "name": "📄 Level 5: 为 GRC 工作流程创建定制操作", "explanation": "高阶代码外挂。会写代码的话，可以写脚本插进工作流里实现骚操作。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "🧮 Level 3: 计划任务与周期性动作",
+                            "logic": "按时间表或特定指令在后台默默执行的大型批处理任务。",
+                            "explanation": "系统设定的闹钟和年底大盘点。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "⏰ Level 4: 定时调度与通知引擎",
+                                    "logic": "时间驱动的自动化邮件或数据清理。",
+                                    "explanation": "催办机器人和深夜保洁员。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 调度程序", "explanation": "定时任务管理器。比如设定每周五凌晨2点自动跑一次数据统计。", "level": 5 },
+                                        { "name": "📄 Level 5: 通知管理器", "explanation": "自动发邮件。审批超时没动静？系统自动给相关人员发邮件夺命连环催。", "level": 5 },
+                                        { "name": "📄 Level 5: 报告周期，对象重置和规则集", "explanation": "年末一键重置。年底把旧数据拍个快照存档，然后一键清空状态，迎接新一年。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "📊 Level 2 (应用层): 数据交换中心与专业模块集成",
+                    "logic": "海量数据的批量进出、报表洞察，以及针对特殊业务场景的“官方扩展插件”。",
+                    "explanation": "大厦的物流进货通道、数据指挥监控大屏、以及专门租借给特定部门的“特殊功能室”。",
+                    "level": 2,
+                    "children": [
+                        {
+                            "name": "🚚 Level 3: 数据管道与洞察分析",
+                            "logic": "怎么把几万条数据瞬间塞进去，以及怎么把数据变成好看的图表搜出来。",
+                            "explanation": "大批量进货叉车和老板的监控大屏。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "📥 Level 4: 批量数据搬运工具",
+                                    "logic": "面向不同技术水平人员的大规模数据导入方式。",
+                                    "explanation": "给业务用的傻瓜导入，和给IT用的代码导入。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: FastMap 将对象数据导入 OpenPages", "explanation": "业务爱用的Excel导入。填好预设的Excel模板，一键倒进系统。", "level": 5 },
+                                        { "name": "📄 Level 5: Load data into OpenPages with ObjectManager", "explanation": "极客爱用的代码导入。用命令行CLI直接往数据库里硬写。", "level": 5 }
+                                    ]
+                                },
+                                {
+                                    "name": "📈 Level 4: 搜索引擎与报表框架",
+                                    "logic": "让员工找数据快准狠，让管理者看趋势一目了然。",
+                                    "explanation": "系统里的百度搜索和 BI 数据可视化系统。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 优化 (全局搜索)", "explanation": "调教右上角放大镜。让大家通过关键词搜数据时出结果极快。", "level": 5 },
+                                        { "name": "📄 Level 5: 管理报告模式", "explanation": "定义报表地基。把散乱的数据结构化，让报表工具能直接读懂。", "level": 5 },
+                                        { "name": "📄 Level 5: 管理报告", "explanation": "控制看表权限。决定谁能看哪个做好的数据饼图或柱状图。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置和生成报告框架", "explanation": "对接专业BI工具。连接 IBM Cognos，做极其复杂酷炫的企业级大表。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "🧩 Level 3: 专业合规版图与 AI 外部集成",
+                            "logic": "应对垂直合规领域的独立功能包，以及连接外部系统的万能接口。",
+                            "explanation": "自带特异功能的高级外挂包和接驳外部网络的光纤接口。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "🏢 Level 4: 专项合规业务套件",
+                                    "logic": "专门针对隐私、IT、供应商或AI模型的垂直监管要求开发的开箱即用模块。",
+                                    "explanation": "买系统送的行业特定“全家桶”。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 调查表评估入门", "explanation": "在线问卷发卷机。给各部门发合规测试卷。", "level": 5 },
+                                        { "name": "📄 Level 5: OpenPages 丢失事件条目", "explanation": "全员报损小白通道。不需要懂系统，全公司任何人都能上去报一笔意外损失。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置 IBM OpenPages Regulatory Compliance Management", "explanation": "外部法规库管理模块 (RCM)。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置 IBM OpenPages 第三方风险管理", "explanation": "查外包商老底模块 (TPRM)。", "level": 5 },
+                                        { "name": "📄 Level 5: IBM OpenPages IT Governance with RiskLens", "explanation": "网络黑客风险算账模块（算算被黑会亏多少钱）。", "level": 5 },
+                                        { "name": "📄 Level 5: IBM OpenPages Model Risk Governance", "explanation": "AI防爆雷管理模块 (MRG)（管好企业自己研发的AI模型）。", "level": 5 },
+                                        { "name": "📄 Level 5: IBM OpenPages Data Privacy Management", "explanation": "防数据泄露模块 (DPM)。", "level": 5 }
+                                    ]
+                                },
+                                {
+                                    "name": "🔌 Level 4: 跨系统融合与人工智能",
+                                    "logic": "打通异构系统数据壁垒，引入大模型能力。",
+                                    "explanation": "万能插座和给系统装上“最强AI大脑”。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: IBM OpenPages 连接器", "explanation": "万能API桥梁。去把公司 HR 或 OA 系统里的数据拉过来。", "level": 5 },
+                                        { "name": "📄 Level 5: 配置集成", "explanation": "接轨 IBM Watson AI。接入自然语言处理、语言翻译和聊天机器人。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "🛠️ Level 2 (运维层): IT 运维底座与版本管理",
+                    "logic": "偏后端的硬核物理机运维操作，保障系统活着，并在出问题时能救活。",
+                    "explanation": "给修电脑的IT网管和运维工程师看的灾备保命手册。",
+                    "level": 2,
+                    "children": [
+                        {
+                            "name": "🖥️ Level 3: 物理服务管控与灾备恢复",
+                            "logic": "对服务器物理资源的控制、底层数据的冷热备份与测试生产环境的切换。",
+                            "explanation": "拔网线、重启大法、防删库跑路备份和一键搬家。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "💾 Level 4: 基础服务器维护与环境搬运",
+                                    "logic": "启停服务器进程，以及跨环境的配置同步。",
+                                    "explanation": "机房日常巡检操作。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 启动和停止服务器", "explanation": "万能重启大法。系统死机了？教你怎么按顺序重启应用和数据库。", "level": 5 },
+                                        { "name": "📄 Level 5: 系统维护", "explanation": "底层网管杂活。比如改个默认端口，或者更新一下过期的数据库密码。", "level": 5 },
+                                        { "name": "📄 Level 5: 迁移 OpenPages 环境", "explanation": "配置一键平移。在测试机配了半个月的界面，打包直接导入生产机，不用重配。", "level": 5 }
+                                    ]
+                                },
+                                {
+                                    "name": "🚑 Level 4: 数据库灾备与查错",
+                                    "logic": "特定数据库引擎的备份方案与系统报错后的求生指南。",
+                                    "explanation": "数据抢救与呼叫 IBM 原厂120。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 将 IBM OpenPages 实用程序与 Db2 / Oracle 数据库配合使用", "explanation": "数据库备份与恢复。教你用官方工具给底层的 Db2 或 Oracle 数据库做快照。", "level": 5 },
+                                        { "name": "📄 Level 5: 对 IBM OpenPages (故障诊断)", "explanation": "找Bug提工单。教你出Bug时去哪个文件夹翻报错日志，打包发给 IBM 提工单求助。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "📜 Level 3: 版本变迁与法律声明",
+                            "logic": "软件版本生命周期管理和官方通告。",
+                            "explanation": "买电器送的更新说明书和免责条款。",
+                            "level": 3,
+                            "children": [
+                                {
+                                    "name": "🔖 Level 4: 软件演进史与附录",
+                                    "logic": "追溯软件的新旧功能交替和法律宣誓。",
+                                    "explanation": "哪些能用，哪些别用。",
+                                    "level": 4,
+                                    "children": [
+                                        { "name": "📄 Level 5: 新增内容", "explanation": "版本更新日志。看看花钱升级这版本多了啥。", "level": 5 },
+                                        { "name": "📄 Level 5: 旧功能部件", "explanation": "官方劝退指南。列出已经被淘汰的旧功能，看到了千万别去配。", "level": 5 },
+                                        { "name": "📄 Level 5: 声明", "explanation": "法律免责废话。版权、商标和免责条款。", "level": 5 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        function getLevelColor(level) {
+            return `var(--level-${level})`;
+        }
+
+        function createNodeHtml(node, isRoot = false) {
+            const hasChildren = node.children && node.children.length > 0;
+            const levelClass = `level-${node.level}`;
+            const color = getLevelColor(node.level);
+
+            // 默认展开前两级，方便用户一眼看清骨架
+            const isExpanded = node.level <= 2;
+            const expandedClass = isExpanded ? 'expanded' : '';
+
+            let html = `
+                <div class="node ${levelClass} ${expandedClass} ${hasChildren ? '' : 'leaf-node'}" style="--node-color: ${color}">
+                    <div class="node-header" ${hasChildren ? 'onclick="toggleNode(this)"' : ''}>
+                        <div class="node-title-wrapper">
+                            <span class="node-title">${node.name}</span>
+                            ${hasChildren ? `
+                                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            ` : ''}
+                        </div>
+            `;
+
+            if (node.logic || node.explanation || node.details) {
+                html += `<div class="tags">`;
+                if (node.logic) {
+                    html += `
+                        <div class="tag-row">
+                            <span class="tag-label tag-logic">【分类逻辑】</span>
+                            <span class="tag-text">${node.logic}</span>
+                        </div>
+                    `;
+                }
+                if (node.explanation) {
+                    html += `
+                        <div class="tag-row">
+                            <span class="tag-label tag-explain">【通俗解释】</span>
+                            <span class="tag-text">${node.explanation}</span>
+                        </div>
+                    `;
+                }
+                if (node.details) {
+                    // Escape details object to pass to onclick
+                    const detailsStr = encodeURIComponent(JSON.stringify(node.details));
+                    html += `
+                        <button class="action-btn" onclick="openModal('${detailsStr}'); event.stopPropagation();">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            查看核心提炼
+                        </button>
+                    `;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`; // Close node-header
+
+            if (hasChildren) {
+                html += `
+                    <div class="node-children">
+                        <div class="children-wrapper">
+                `;
+                node.children.forEach(child => {
+                    html += createNodeHtml(child);
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`; // Close node
+            return html;
+        }
+
+        document.getElementById('tree').innerHTML = createNodeHtml(treeData, true);
+
+        function toggleNode(element) {
+            const node = element.parentElement;
+            node.classList.toggle('expanded');
+        }
+
+        function toggleAll(expand) {
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {
+                if (expand) {
+                    node.classList.add('expanded');
+                } else {
+                    node.classList.remove('expanded');
+                }
+            });
+            // 全部折叠时，保持根节点（Level 1）展开状态，体验更好
+            if (!expand) {
+                const rootNode = document.querySelector('.tree-root > .node');
+                if (rootNode) rootNode.classList.add('expanded');
+            }
+        }
+
+        function openModal(detailsEncoded) {
+            const details = JSON.parse(decodeURIComponent(detailsEncoded));
+
+            let html = `
+                <h2>${details.title}</h2>
+                <div class="modal-subtitle">${details.subtitle}</div>
+            `;
+
+            details.points.forEach(point => {
+                html += `
+                    <div class="modal-point">
+                        <h3>${point.title}</h3>
+                        <p>${point.content}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalContainer').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('modalContainer').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>
