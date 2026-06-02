@@ -1743,6 +1743,33 @@
                                                             }
                                                         ]
                                                     }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: 加密与密钥管理 (Encryption)",
+                                                    "explanation": "系统级敏感信息的加密保护，包括属性文件密码加密和字段级数据加密。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🔐 加密与定制密钥库 (Keystore)",
+                                                        "subtitle": "核心归纳：使用 jceks 格式密钥库，统一管理全应用层的密码加密。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 算法与密钥生成 (keytool)",
+                                                                "content": "支持使用 Java 密钥库格式 (<code>jceks</code>)。受支持的算法包括 <strong>3DES (168位)</strong> 以及 <strong>AES (128/192/256位)</strong>。<br>⚠️ <strong>核心铁律</strong>：在生成和配置密钥库时，密钥库密码 (keystore password) 必须与具体密钥的密码 (key password) <strong>完全一致</strong>。"
+                                                            },
+                                                            {
+                                                                "title": "2. 全局通信证：keystore.properties",
+                                                                "content": "此文件是加密体系的灵魂，包含 <code>key.alias</code>、密码和 <code>keystore.path</code>。必须确保<strong>所有的</strong>应用服务器 (Application Server)、报表服务器 (Reporting Server) 以及搜索服务器 (Search Server) 都能访问到文件中指定的 <code>.jks</code> 密钥库路径。"
+                                                            },
+                                                            {
+                                                                "title": "3. 四类属性文件的“破釜沉舟”式重加密",
+                                                                "content": "当变更密钥后，必须手动将配置里的密文改成明文，再使用脚本重新加密：<ul><li><strong>应用服务器</strong>：涉及 <code>aurora.properties</code>(系统/DB密码), <code>aurora_auth.config</code>, <code>bootstrap.properties</code> 和 <code>op-backup-restore.env</code>。修改完后运行 <code>OPBackup.cmd secure</code> 重新加密。</li><li><strong>报表服务器</strong>：涉及 <code>op-cc-backup-restore.env</code>。修改完后运行 <code>OPCCBackup.cmd secure</code> 重新加密。</li></ul>"
+                                                            },
+                                                            {
+                                                                "title": "4. 字段级加密与向量随机化",
+                                                                "content": "除了属性文件，定制密钥还能对 IBM OpenPages 存储库中的<strong>特定机密字段</strong>进行加密，防止 DBA 直接从数据库读底表。另外，支持在应用服务器层配置 AES 密码模式和 3DES 初始向量 (IV) 随机化。"
+                                                            }
+                                                        ]
+                                                    }
                                                 }
                                             ]
                                         },
@@ -2031,7 +2058,7 @@
                 }
                 if (node.details) {
                     // Escape details object to pass to onclick
-                    const detailsStr = encodeURIComponent(JSON.stringify(node.details));
+                    const detailsStr = encodeURIComponent(JSON.stringify(node.details)).replace(/'/g, "%27");
                     html += `
                         <button class="action-btn" onclick="openModal('${detailsStr}'); event.stopPropagation();">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
