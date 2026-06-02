@@ -1,131 +1,167 @@
-加密
+更新搜索服务器上的属性文件以使用定制密钥
 上次更新时间: 2025-02-13
-
-IBM OpenPages® 支持以下可选功能:
-
-    您可以配置定制加密密钥以加密存储在 OpenPages 属性文件中的密码。
-
-    如果未配置定制加密密钥，那么属性文件中的密码仍会加密。 但是，您的组织策略可能要求您使用定制加密密钥。
-    您可以对 IBM OpenPages 存储库中的特定字段进行加密，以防止系统管理员直接从数据库查看机密数据。
-
-    创建密钥库
-    您可以为 IBM OpenPages创建密钥库。
-    为属性文件中的密码配置定制加密密钥
-    您可以配置定制加密密钥以对属性文件中存储的密码进行加密。
-    配置字段级别加密
-    您可以对 IBM OpenPages 存储库中的特定字段进行加密，以防止系统管理员直接从数据库查看机密数据。 加密字段中的数据显示为一串随机字符。
-    更新加密密钥库
-    贵公司的 IT 策略可能要求您定期更改加密密钥。 每当加密密钥详细信息更改时，都必须更新 IBM OpenPages中的加密密钥库。
-    加密服务器变量
-    您可以使用管理应用程序服务器上的环境变量来配置用于AES加密的密码模式，并启用或禁用 3DES 加密的初始向量（IV）随机化。 这些设置会影响字段级加密和属性文件中的密码加密。
-
-Parent topic:
-安全
-
-
-
-创建密钥库
-上次更新时间: 2025-02-13
-您可以为 IBM OpenPages®创建密钥库。
-
-    创建加密密钥库文件和密钥对
-    在 IBM OpenPages中设置加密密钥库之前，必须创建包含密钥对详细信息的加密密钥库文件。
-    设置加密密钥库
-    加密密钥库是一个文件，用于存储用于对存储在属性文件中的密码进行加密以及对 IBM OpenPages 存储库中的数据进行加密的密钥。
-
-父主题:
-加密
-
-
-
-
-创建加密密钥库文件和密钥对
-上次更新时间: 2025-02-13
-必须先创建包含密钥对详细信息的加密密钥库文件，然后才能在 IBM OpenPages®中设置加密密钥库。
-
-该文件必须使用 Java™ 格式 (jceks)。 虽然可以使用任何密钥工具来创建文件，但它必须使用与 Java 密钥库相同的格式。
-加密密钥必须使用下列其中一种加密算法。 不支持任何其他算法。
-表 1. 受支持的加密算法
-算法名称
-	
-密钥大小
-3DES	168
-AES128	128
-AES192	192
-AES256	256
-运行 keytool -genseckey 命令时，系统会提示您输入密钥库密码和密钥密码。
-重要信息: 必须对密钥库和密钥使用相同的密码。
-
-在以下示例中，该命令将生成使用受支持 Java 格式 (jceks) 的密钥库。 加密密钥使用密钥大小为 168 的 3DES 加密算法。
-
-keytool -genseckey -alias openpages -keyalg 3DES -keysize 168 
- -storetype jceks -keystore keystore-3DES.jks
-
-在以下示例中，该命令将生成使用受支持 Java 格式 (jceks) 的密钥库。 加密密钥使用密钥大小为 256 的 AES 加密算法。
-
-keytool -genseckey -alias openpages -keyalg AES -keysize 256
- -storetype jceks -keystore keystore-AES256.jks
-
-父主题:
-创建密钥库
-
-
-
-
-设置加密密钥库
-上次更新时间: 2025-09-26
-加密密钥库是一个文件，用于存储用于加密存储在属性文件中的密码以及用于加密 IBM OpenPages® 存储库中的数据的密钥。
+如果使用全局搜索，请更新搜索服务器上的属性文件以使用定制加密密钥。
 开始之前
-您需要密钥库文件，并且需要知道密钥库密码。 有关更多信息，请参阅 创建加密密钥库文件和密钥对。
+必须先完成以下任务，然后才能开始:
+
+    创建包含加密密钥库和密钥对的文件。 请参阅 创建加密密钥库文件和密钥对。
+    设置加密密钥库。 设置加密密钥库
+    创建 keystore.properties 文件。 请参阅 keystore.properties 文件。
+    验证搜索服务器是否可以访问 keystore.properties 文件中指定的 keystore.path 。
+
 过程
 
-    启用系统管理方式。
-    有关更多信息，请参阅 启用和禁用系统管理方式。
+    将 keystore.properties 文件复制到 <SEARCH_HOME> 目录。
+    禁用全局搜索并停止全局搜索服务。
+    请参阅 使用脚本停止全局搜索服务 或 停止全局搜索服务。
+    以管理员身份打开 shell 或命令窗口，然后转至 <SEARCH_HOME> 目录。
+    运行以下命令以使用定制密钥加密密码:
+    提示: 您不需要更改密码。 您可以对 <old_op_db_password> 和 <new_op_db_password> 参数使用相同的值。
+
+    java -jar opsearchtool.jar setdbuserpassword -username <op_db_username>-password <old_op_db_password> -newusername <op_db_username> -newpassword<old_op_db_password>
+                   
+
+    您无需更改全局搜索服务 (Apache Solr) 密码。 全局搜索服务密码存储在注册表设置中，而不是存储在属性文件中。
+    启动全局搜索服务。
+    请参阅 使用脚本启动全局搜索服务。 或者，如果要将全局搜索作为服务启动，请参阅 在 Windows 上启动全局搜索服务 或 在 Linux上启动全局搜索服务。
+
+结果
+
+搜索服务器用于访问数据库服务器的密码将使用您在 keystore.properties 文件中指定的定制加密密钥进行加密。
+父主题:
+为属性文件中的密码配置定制加密密钥
+
+
+
+配置字段级别加密
+上次更新时间: 2025-02-13
+您可以对 IBM OpenPages® 存储库中的特定字段进行加密，以防止系统管理员直接从数据库查看机密数据。 加密字段中的数据显示为随机字符字符串。
+
+支持简单字符串和长字符串字段数据类型。
+
+已加密的字段不适合在全局搜索中使用。
+注: 在 Oracle 12.2上运行的 OpenPages 中加密长字符串之前，请参阅以下技术说明: http://www.ibm.com/support/docview.wss?uid=swg22010106。 该技术说明描述了潜在问题，以及如何通过从 Oracle 支持获取相应的补丁并将其应用于您的环境来解决该问题。 IBM OpenPages 报告框架通过运行数据库函数对已加密的字段进行解密来处理这些字段。 当对长字符串 (CLOB) 字段进行加密时，必须重新生成框架以调用此数据库函数。 有关更多信息，请参阅 生成报告框架。
+
+限制：
+
+    可加密的长字符串的最大大小为 2 MB。
+    请勿在过滤器的搜索条件中包含加密的长字符串字段，因为这些字段可能会返回意外结果。
+
+您需要执行以下任务以使用字段级别加密:
+
+    创建包含加密密钥库和密钥对的文件。 请参阅 创建加密密钥库文件和密钥对。
+    设置加密密钥库。 设置加密密钥库
+    将密钥库文件放在环境中的应用程序服务器上。
+    在水平环境中，密钥库文件必须可供每个应用程序服务器使用。 有两个选项：
+        每个应用程序服务器都必须有权访问管理应用程序服务器上的文件位置。
+        该文件必须在每个应用程序服务器上的相同位置中可用。
+
+    在非集群环境中，将密钥库文件放在管理应用程序服务器上。
+    启用密钥库。 请参阅 启用加密密钥库。
+
+注: 如果已配置字段级别加密，但密钥的属性已更改，请参阅 更新加密密钥库。
+
+    启用加密密钥库
+    设置加密密钥库后，必须使其能够对 IBM OpenPages 存储库进行加密。 如果需要，您可以稍后禁用密钥库以再次解密存储库。
+    禁用加密密钥库
+    在对 IBM OpenPages 存储库进行加密之后，您可以禁用密钥库以再次对存储库进行解密。
+
+父主题:
+加密
+
+
+
+
+启用加密密钥库
+上次更新时间: 2025-09-26
+设置加密密钥库后，必须启用该密钥库以加密 IBM OpenPages® 存储库。 如果需要，您可以稍后禁用密钥库以再次解密存储库。
+关于本任务
+
+当您启用密钥库时，将在存储库中自动加密当前标记为加密的任何字段。 如果没有标记为加密的字段，那么将启用密钥库，这意味着它已准备好自动对从现在开始标记为加密的任何字段进行加密。 有关标记字段以进行加密的信息，请参阅 加密字段值。
+过程
+
+    单击 打开管理菜单 管理菜单 > 用户和安全性 > 加密密钥存储.
+    单击 启用。
+
+    根据存储库的大小，加密可能需要很长时间。 加密作为后台事件运行。 您可以通过单击 刷新来查看进度。
+
+父主题:
+配置字段级别加密
+
+
+
+
+
+
+禁用加密密钥库
+上次更新时间: 2025-09-26
+在对 IBM OpenPages® 存储库进行加密后，可以禁用密钥库以再次对存储库进行解密。
+关于本任务
+
+禁用密钥库时，将在存储库中自动解密当前标记为要解密的任何字段。 如果未将任何字段标记为要解密，那么将禁用密钥库，这意味着它已准备好自动解密从现在开始标记为要解密的任何字段。 有关标记要解密的字段的信息，请参阅 解密字段值。
+过程
+
+    单击 打开管理菜单 管理菜单 > 用户和安全性 > 加密密钥存储.
+    单击 禁用。
+
+    根据存储库的大小，解密可能需要很长时间。 解密作为后台事件运行。 您可以通过单击 刷新来查看进度。
+
+父主题:
+配置字段级别加密
+
+
+
+
+
+更新加密密钥库
+上次更新时间: 2025-09-26
+
+贵公司的 IT 策略可能要求您定期更改加密密钥。 每当加密密钥详细信息更改时，都必须更新 IBM OpenPages®中的加密密钥库。
+注意：
+
+如果已启用字段级别加密，那么无需禁用加密密钥库即可对其进行更新。
+过程
+
+    创建新的密钥库文件。
+    有关更多信息，请参阅 创建加密密钥库文件和密钥对。
+    创建 keystore.properties 文件。 请参阅 keystore.properties 文件。
     单击 打开管理菜单 管理菜单 > 用户和安全性 > 加密密钥存储.
     单击 编辑。
-    在 密钥名称 字段中输入加密密钥的名称。
-    在 密钥别名 字段中输入别名。
-    重要信息: 确保指定的别名与密钥库文件中的别名完全匹配。
-    在 密钥库位置 字段中输入密钥库位置。
+    输入当前加密密钥库密码以进行访问。
+    更新密钥库的详细信息。
 
-    出于安全原因，您无法浏览到该位置，必须手动输入该位置。
-    在 算法 字段中选择密钥所使用的加密算法。
-    在 密钥库密码 字段中输入密钥库密码，
-    重要信息: 确保此处指定的密码与密钥库文件中的密码完全匹配。
-    在 重新输入密钥库密码 字段中确认密码。
-    在 描述 字段中输入密钥库的描述。
+    有关更多信息，请参阅 设置加密密钥库。
     单击 更新。
-    注: 如果将来更改任何这些密钥库属性，那么必须更新密钥库。 有关更多信息，请参阅 更新加密密钥库。
 
-父主题:
-创建密钥库
-
-
-
-
-
-
-为属性文件中的密码配置定制加密密钥
-上次更新时间: 2025-02-13
-您可以配置定制加密密钥，以加密存储在属性文件中的密码。
-注: 如果已配置定制密钥，但密钥的属性已更改，请参阅 更新加密密钥库。
-您需要执行以下任务以使用定制密钥对存储在属性文件中的密码进行加密:
-
-    创建包含加密密钥库和密钥对的文件。 请参阅 创建加密密钥库文件和密钥对。
-    设置加密密钥库。 设置加密密钥库
-    创建 keystore.properties 文件。 请参阅 keystore.properties 文件。
-    更新所有应用程序服务器上的属性文件以使用定制加密密钥。 请参阅 更新应用程序服务器上的属性文件以使用定制密钥。
-    更新所有报告服务器上的属性文件以使用定制加密密钥。 请参阅 更新报告服务器上的属性文件以使用定制密钥。
-    如果使用全局搜索，请更新搜索服务器上的属性文件以使用定制加密密钥。 请参阅 更新搜索服务器上的属性文件以使用定制密钥。
-
-    keystore.properties 文件
-    创建 keystore.properties 文件。 该文件定义要用于存储在 IBM OpenPages 属性文件中的密码的定制加密密钥。
-    更新应用程序服务器上的属性文件以使用定制密钥
-    配置定制加密密钥之后，请更新应用程序服务器上的属性文件以使用定制加密密钥。
-    更新报告服务器上的属性文件以使用定制密钥
-    配置定制加密密钥之后，请更新报告服务器上的属性文件以使用定制加密密钥。
-    更新搜索服务器上的属性文件以使用定制密钥
-    如果使用全局搜索，请更新搜索服务器上的属性文件以使用定制加密密钥。
+    如果使用字段级别加密并且已启用，那么将使用新的加密密钥对字段进行重新加密。 根据存储库的大小，更新加密可能需要很长时间。 字段加密在后台运行。 您可以通过单击 刷新来查看进度。
+    更新属性文件中的密码。
+        在每个应用程序服务器上，将属性文件中的密码更改为明文，保存文件，然后重新启动应用程序服务器。
+        有关更多信息，请参阅 更新应用程序服务器上的属性文件以使用定制密钥。
+        在每个报告服务器上，将属性文件中的密码更改为明文，保存文件，然后重新启动报告服务器。
+        有关更多信息，请参阅 更新报告服务器上的属性文件以使用定制密钥。
+        如果您使用全局搜索，请将属性文件中的密码更改为明文，保存文件，然后重新启动服务器。
+        有关更多信息，请参阅 更新搜索服务器上的属性文件以使用定制密钥。
+    重新启动服务器时，密码将使用更新的加密密钥进行加密。
+    如果使用 IBM OpenPages Loss Event Entry ，请重新输入每个语言环境的密码。
+        启动配置工具。 转至 http://<server_name>:<port>/openpages/app/jspview/react/grc/lee-config
+        使用属于 OPAdministrators 组成员的用户帐户进行登录。
+        在 语言环境 部分下，展开每个语言环境并输入密码。
+        关闭配置工具。
+    使用更新后的加密密钥对密码进行加密。
+    如果将 LDAP 用于用户供应，请执行以下步骤：
+        单击 打开管理菜单 管理菜单 > 用户和安全性 > 用户 LDAP 配置.
+        编辑 LDAP 配置。
+        在 安全凭证 字段中，重新输入用于向 LDAP 服务器认证的密码。
+        单击保存。
+    使用更新后的加密密钥对安全凭证进行加密。
+    如果您使用的是 Natural Language Classifier，请执行以下步骤：
+        单击 打开管理菜单 管理菜单 > 集成 > 制图和分类建议。
+        编辑分类器配置。
+            Natural Language Classifier: 在 API 密钥 字段中，重新输入 Natural Language Classifier 实例的 API 密钥。
+            Watson DiscoveryAnalyze API：重新输入密码。
+        单击保存。
+        对每个分类器配置重复这些步骤。
+    API 密钥使用更新的加密密钥进行加密。
 
 父主题:
 加密
@@ -133,170 +169,311 @@ keytool -genseckey -alias openpages -keyalg AES -keysize 256
 
 
 
-keystore.properties 文件
+
+加密服务器变量
 上次更新时间: 2025-02-13
-创建 keystore.properties 文件。 该文件定义要用于存储在 IBM OpenPages® 属性文件中的密码的定制加密密钥。
 
-在 IBM OpenPages中创建密钥库并对其进行配置之后，请执行此任务。
-使用以下文本作为模板:
+适用于： 在本地 在云端
 
-#Tue December 13 23:35:46 EDT 2018
-key.password=<password for the encryption key>
-key.alias=<alias (name) of the encryption key>
-keystore.path=<full path to the .jks file> 
-store.password=<password for the keystore>
+您可以在管理应用程序服务器上使用环境变量来配置用于AES加密的密码模式，并启用或禁用 3DES 加密的初始向量（IV）的随机化。 这些设置会影响字段级加密和属性文件中的密码加密。
+默认情况下， 9.0.0.5 和更高版本中，AES的加密模式为Galois Counter Mode（ GCM ）， 3DES 初始化向量是随机的。 现有的加密值仍然可用，但所有新的加密过程都使用 GCM。
 
-注: key.password 和 store.password 必须相同。
-对于 keystore.path 参数，请使用所有应用程序服务器和报告服务器都可访问的目录。 如果使用全局搜索，请确保搜索服务器也可以访问该目录。 您可以选择以下选项：
+    如果您想使用默认设置，则无需任何操作。
+    如果您需要使用之前的默认模式——密码块链接（CBC），请在 server.env 文件中设置环境变量。
+    如果您想将Counter与密码块链接消息认证（CCM）结合使用，请在 server.env 文件中设置环境变量。
 
-    指定所有应用程序服务器，报告服务器和搜索服务器可访问的网络位置。
-    或者，将 .jks 文件存储在每个服务器上的同一目录中。
-    或者，为每种类型的服务器创建 keystore.properties 文件。
+server.env 文件的位置是： <OP_HOME>/wlp-usr/servers/opapp-<server_name><#>/server.env
 
-示例：
+aes.encryption.transformation
+    使用此变量指定用于AES加密的密码模式。
+    可以使用以下值：
 
-#Tue December 13 23:35:46 EDT 2018
-key.password=password
-key.alias=openpages
-keystore.path=C\:\\admin\\keystore-AES128.jks 
-store.password=password
+        AES/GCM/NoPadding：将密码模式设置为伽罗瓦计数模式（ GCM ）。
+        AES/CCM/NoPadding：将密码模式设置为“带密码块链接的消息认证（CCM）”的“计数器”。
+        AES/CBC/PKCS5Padding （这是传统设置。）
+
+    缺省值：AES/GCM/NoPadding
+3des.encryption.randomiv
+    使用此变量可启用 3DES 初始化向量的随机化。
+    请使用默认值，除非您正在管理一个需要非随机IV的旧系统。
+
+        true：启用随机IV进行加密。
+        false：保留旧版行为，以便与旧版系统兼容。
+
+    缺省值：true
+
+注意： 添加或修改这些变量后，请重启应用服务器以应用更改。
+示例
+
+要使用 GCM 模式和随机的 3DES 初始化向量，无需任何操作。
+要将默认的 GCM 模式更改为CBC模式，请在 server.env 文件中添加以下几行：
+
+aes.encryption.transformation=AES/CBC/PKCS5Padding
+3des.encryption.randomiv=true
+
+要将 GCM 模式更改为CCM模式，请在 server.env 文件中添加以下几行：
+
+aes.encryption.transformation=AES/CCM/NoPadding
+3des.encryption.randomiv=true
+
+Parent topic:
+加密
+
+
+
+
+
+
+LDAP 用户认证
+上次更新时间: 2025-02-13
+
+IBM OpenPages® 支持使用 LDAP (轻量级目录访问协议) 认证服务器来控制用户访问权。
+
+要使用 LDAP 用户认证，请将 OpenPages 与 LDAP 数据源集成。
+
+只能同时有一个登录模块处于活动状态。 OpenPages 支持单个名称空间。 所有用户都必须通过同一数据源进行认证。 可在多森林环境中使用多个认证模块。
+
+还必须在 LDAP 认证服务器中定义创建或导入到 OpenPages 中的用户。 管理 OpenPages 用户的管理员负责维护 OpenPages 用户列表与外部 LDAP 数据源之间的关联。 如果在 OpenPages 服务器上禁用了用户，那么必须在 LDAP 目录服务器上手动禁用该用户。
+注: 如果 LDAP 目录服务器用于用户认证，那么将在 OpenPages中禁用 更改密码 选项。 使用 LDAP 服务器时，不会在 OpenPages中维护密码。 必须在 LDAP 服务器中更改密码。
+
+您还可以配置 OpenPages 以通过 SSL 使用外部 LDAP 用户认证服务器。 有关更多信息，请参阅 修改 LDAP over TLS 的 LDAP 配置文件。
+
+    配置 LDAP 认证模块
+    要成功将 LDAP 目录服务器与 IBM OpenPages配合使用，必须配置 LDAP 认证模块以识别 LDAP 服务器的存在。
+    设置混合方式认证
+    当并非所有用户都可以使用单个名称空间进行认证时，使用混合方式认证。
+    配置多森林 LDAP 认证
+    IBM OpenPages 支持在多森林配置中使用多个 LDAP 认证服务器。 如果应用程序在第一个认证服务器中找不到用户，那么它将检查列表中的下一个服务器并重复，直到它找到该用户或检查所有列出的认证服务器为止。
 
 父主题:
-为属性文件中的密码配置定制加密密钥
+安全性
 
 
 
 
 
 
-更新应用程序服务器上的属性文件以使用定制密钥
+
+配置 LDAP 认证模块
 上次更新时间: 2025-02-13
-配置定制加密密钥后，请更新应用程序服务器上的属性文件以使用定制加密密钥。
-开始之前
-必须先完成以下任务，然后才能开始:
 
-    创建包含加密密钥库和密钥对的文件。 请参阅 创建加密密钥库文件和密钥对。
-    设置加密密钥库。 设置加密密钥库
-    创建 keystore.properties 文件。 请参阅 keystore.properties 文件。
-    验证所有应用程序服务器都可以访问 keystore.properties 文件中指定的 keystore.path 。
+要成功将 LDAP 目录服务器与 IBM OpenPages®配合使用，必须配置 LDAP 认证模块以识别 LDAP 服务器的存在。
 
+要配置 OpenPages 以使用外部 LDAP 认证源，请完成以下任务:
+
+    将现有用户添加到 LDAP 服务器
+    修改 LDAP 配置文件
+
+    将现有用户添加到 LDAP 服务器
+    您可以将现有 IBM OpenPages 用户添加到 LDAP 服务器。
+    修改 LDAP 配置文件
+    必须修改认证配置文件以启用您正在使用的 LDAP 目录服务器。
+
+父主题:
+LDAP 用户认证
+
+
+
+
+
+将现有用户添加到 LDAP 服务器
+上次更新时间: 2025-02-13
+
+您可以将现有 IBM OpenPages® 用户添加到 LDAP 服务器。
+
+请确保参阅 LDAP 目录服务器文档以了解将用户添加到 LDAP 服务器所需的步骤。
+重要信息: 如果使用 Microsoft Active Directory 用户和计算机作为 LDAP 认证服务器，那么用户名限制为 20 个字符。 超过 20 个字符限制的用户名将截断为 20 个字符。 此长度限制不会在 Sun 提供的 LDAP 服务器中出现。
+
+所有需要访问 OpenPages 应用程序或服务器平台的用户都必须添加到 LDAP 认证服务器。 此外，还需要将以下用户添加到 LDAP 服务器:
+
+    OPSystem
+    注: 如果为 OPSystem 帐户指定的密码与产品安装的密码不同，那么需要完成 更改 OPSystem 密码 以在系统范围内更改 OPSystem 帐户密码。
+    OpenPages 超级管理员 (有关更多信息，请参阅 超级管理员)
+    OPAdministrator (仅当您正在使用此帐户时)
+
+父主题:
+配置 LDAP 认证模块
+
+
+
+
+
+修改 LDAP 配置文件
+上次更新时间: 2025-02-13
+
+您必须修改认证配置文件以启用您正在使用的 LDAP 目录服务器。
+注: 如果使用 LDAP over SSL ，请参阅 修改 LDAP over TLS 的 LDAP 配置文件。
+
+aurora_auth.config 文件包含三个认证模块:
+
+    Openpages -缺省内部用户目录
+    OpenpagesIP -Sun One Directory Server 的样本 LDAP 配置
+    OpenpagesAD -Microsoft Active Directory Server 的样本 LDAP 配置
+
+IBM OpenPages® 系统关注的唯一模块是名为 Openpages的模块。 因此，您需要备份 Openpages 模块，将 OpenpagesIP 或 OpenpagesAD 重命名为 Openpages，然后更改设置以反映 LDAP 服务器的设置。
 过程
 
-    停止所有 OpenPages 应用程序服务器，管理和非管理。
-    请参阅 停止应用程序服务器。
-    将 keystore.properties 文件复制到 <OP_HOME>/aurora/bin 目录。
-    编辑 aurora.properties 文件。
-        转至 <OP_HOME>/aurora/conf 目录。
-        生成 aurora.properties 文件的备份副本。
-        在文本编辑器中打开 aurora.properties 文件。
-        将等号后的以下密码值更改为纯文本。
+    停止所有 OpenPages 服务。
+    在文本编辑器中打开并编辑 <OP_Home>/aurora/conf/aurora_auth.config 文件。
 
-        security.system.password=<openpages_system_password>
-        database.PASSWORD=<openpages_db_password>
-                             
+    其中：
 
-        保存并关闭文件。
-        稍后在此任务中重新启动服务器时，将使用定制加密密钥对密码进行重新加密。
-    编辑 aurora_auth.config 文件。
-        转至 <OP_HOME>/aurora/conf 目录。
-        生成 aurora_auth.config 文件的备份副本。
-        在文本编辑器中打开 aurora_auth.config 文件。
-        找到 security.search.user.credentials 参数
-        将等号后的值更改为纯文本。
-        保存并关闭文件。
-        稍后在此任务中重新启动服务器时，将使用指定的定制密钥重新加密密码。
-    编辑 bootstrap.properties 文件。
-        转至 <OP_HOME>/wlp-usr/servers/<server_name>Server<#> 目录。
-        生成 bootstrap.properties 文件的备份副本。
-        在文本编辑器中打开 bootstrap.properties 文件。
-        将等号后的以下密码值更改为纯文本。
 
-        op.jdbc.password=<jdbc_password>
-                             
+                         <OP_Home>
+                      是 OpenPages 应用程序的安装位置。
+    查找 Openpages 模块并将其名称更改为 OpenpagesDefault。
+    将 OpenpagesIP 或 OpenpagesAD 模块名称修改为 Openpages。
+        如果您正在使用 Microsoft Active Directory 服务器，请将 OpenpagesAD 模块的名称更改为 Openpages。
+        如果要使用 Sun One Directory Server ，请将 OpenpagesIP 模块的名称更改为 Openpages。
+        如果您正在使用其他 LDAP 服务器，那么可以使用其中任一模块。 选择要用作模板的模块，并将其名称更改为 Openpages。
+    在名为 Openpages的模块中为以下属性指定正确的值:
 
-        保存并关闭文件。
-        稍后在此任务中重新启动服务器时，将使用定制加密密钥对密码进行重新加密。
-    编辑 op-backup-restore.env 文件。
-        转至 <OP_HOME>/aurora/bin 目录。
-        生成 op-backup-restore.env 文件的备份副本。
-        在文本编辑器中打开 op-backup-restore.env 文件。
-        将等号后的以下密码值更改为纯文本。
+    provider.url
+        将该值更改为 LDAP 认证服务器的主机名和端口号。 对于 LDAP ，协议为 ldap ，端口为 LDAP 端口号 (缺省情况下为 389)。
+    base.dn
+        LDAP 服务器上 LDAP 目录树结构（域名）的顶级。 如果要认证的用户位于 Active Directory 结构中的多个位置，请使用位置的专有名称显式列出所有位置，每个位置以分号分隔。
+        例如：
 
-        IBM® Db2®
-            DB_OP_PWD: 输入 OpenPages 数据库的模式所有者的密码。
-        Oracle
-                DB_SYSTEM_PWD: 输入 OpenPages 数据库的 SYSTEM 用户的密码。
-                DB_SYS_PWD: 输入数据库 OpenPages 的 DBA 用户的密码。
-                DB_OP_PWD: 输入 OpenPages 数据库的模式所有者的密码。
 
-        保存并关闭文件。
-    使用指定的定制加密密钥对 op-backup-restore.env 文件中的密码进行重新加密。
-        转至 <OP_HOME>/aurora/bin 目录。
-        运行以下命令：
+        base.dn="DC=LDAPTesting,DC=local;CN=Users,DC=LDAPTesting,DC=local;
+        OU=Auditors,OU=External Auditors,OU=Staff,DC=LDAPTesting,DC=local"
 
-        Windows
+    user.attr.id
+        用户标识的属性名称 (例如， uid， cn等)
+    其他定制参数
+        您可以添加 Java™ 命名和目录接口 (JNDI) 支持的其他定制参数。 在 JNDI 属性之前添加 ctx.env. 前缀。
 
-            OPBackup.cmd secure
+        例如，如果要使用 JNDI 属性 com.sun.jndi.ldap.connect.timeout，请在 aurora_auth.config 文件中使用 ctx.env.com.sun.jndi.ldap.connect.timeout="<value>" 。
 
-        Linux
+        有关 JNDI 属性的信息，请参阅 Java SE 文档 (http://docs.oracle.com/javase/7/docs/technotes/guides/jndi/jndi-ldap.html#JNDIPROPS)。
 
-            ./OPBackup.sh secure
+    例如：
 
-        在文本编辑器中打开 op-backup-restore.env 文件，并验证密码是否已加密。
-    如果您正在使用水平集群，请在集群中的每个应用程序服务器上执行步骤 2-6。
-    启动所有 OpenPages 应用程序服务器，即 admin 和非 admin。
-    请参阅 启动应用程序服务器。
+    Openpages
+    {
+       com.openpages.aurora.service.security.namespace.LDAPLoginModule 
+              required debug=false
+          provider.url="ldap://myserver.company.com:389"
+          security.authentication="simple"
+          security.search.user.dn="cn=Directory Manager"
+          security.search.user.credentials="openpages"
+          base.dn="ou=people,o=IBM,c=US"
+          user.attr.id="uid"
+          ;
+    };
+
+    完成编辑文件后，保存更改并退出。
+    重新启动所有服务。
 
 结果
 
-使用您在 keystore.properties 文件中指定的定制加密密钥对密码进行加密。
+您已将 OpenPages 系统配置为使用外部 LDAP 用户认证服务器。
 父主题:
-为属性文件中的密码配置定制加密密钥
+配置 LDAP 认证模块
 
 
 
 
 
 
-更新报告服务器上的属性文件以使用定制密钥
+
+
+
+设置混合方式认证
 上次更新时间: 2025-02-13
-配置定制加密密钥后，请更新报告服务器上的属性文件以使用定制加密密钥。
-开始之前
-必须先完成以下任务，然后才能开始:
 
-    创建包含加密密钥库和密钥对的文件。 请参阅 创建加密密钥库文件和密钥对。
-    设置加密密钥库。 设置加密密钥库
-    创建 keystore.properties 文件。 请参阅 keystore.properties 文件。
-    验证所有报告服务器都可以访问 keystore.properties 文件中指定的 keystore.path 。
+当并非所有用户都可以使用单个名称空间进行认证时，请使用混合方式认证。
 
+此解决方案适用于那些不想在LDAP服务器上创建OPSystem、SOXAdministrator OpenPagesAdministrator, 或OPAdministrator用户账户，但希望所有用户都通过LDAP认证的客户。 以下过程将创建新的名称空间并修改用户名 (例如， OPSystem) 以针对 OpenPages® 认证模块而不是 LDAP 进行认证。
 过程
 
-    将 keystore.properties 文件复制到 <CC_HOME>/tools/bin/ 目录。
-    编辑 op-cc-backup-restore.env 文件。
-        转至 <OP_HOME>/tools/bin 目录。
-        生成 op-cc-backup-restore.env 文件的备份副本。
-        在文本编辑器中打开 op-cc-backup-restore.env 文件。
-        将等号后的以下密码值更改为纯文本。
+    要在 aurora_auth.config 文件中创建名称空间模块，请登录到应用程序服务器。
+    查找并打开 aurora_auth.config 文件。
+    创建或更新文件中的名称空间模块，如下所示:
 
-        DB_CC_PWD=<cognos_db_password>
-                             
+    OpenpagesDefault
+    {
+    com.openpages.aurora.service.security.namespace.AuroraLoginModule
+    required debug=false;
+    };
 
-        保存并关闭文件。
-    使用定制加密密钥对 op-cc-backup-restore.env 文件中的密码进行重新加密。
-        转至 <CC_HOME>/tools/bin 目录。
-        运行以下命令：
 
-        Windows
+    Openpages
+    {
+    com.openpages.aurora.service.security.namespace.LDAPLoginModule required 
+    debug=false 
+    provider.url="ldap://192.168.0.169:30429" 
+    security.authentication="simple"
+    base.dn="DC=LDAPTesting,DC=local;OU=People,DC=LDAPTesting,DC=local"
+    user.attr.id="uid"
+    ;
+    };
 
-            OPCCBackup.cmd secure
+    要在数据库中创建名称空间，请使用数据库标识 (例如 OPENPAGES) 登录到数据库实例。
+    运行以下 SQL 以创建 OpenpagesDefault 名称空间:
 
-        Linux®
+    insert into namespaces (NAMESPACEID, NAME, JAASLOGINMODULE,
+    DESCRIPTION) values (namespaceidseq.nextval, 'Openpages Security',
+    'OpenpagesDefault', 'Default Openpages Security Namespace');
 
-            ./OPCCBackup.sh secure
+    运行以下 SQL 以将标识指向新的名称空间:
 
-        在文本编辑器中打开 op-cc-backup-restore.env 文件，并验证密码是否已加密。
-    如果要使用水平集群，请更新集群中的每个报告服务器。
+    update actors set namespaceid = (select namespaceid from 
+    namespaces where JAASLOGINMODULE = 'OpenpagesDefault') where actorid = 
+    (select actorid from actorinfo where name = 'user_name');
 
-结果
+    例如，以下 SQL 将使 OPSystem 使用 OpenpagesDefault 名称空间进行认证:
 
-使用您在 keystore.properties 文件中指定的定制加密密钥对密码进行加密。
+    update actors set namespaceid = (select namespaceid from
+    namespaces where JAASLOGINMODULE = 'OpenpagesDefault') where actorid =
+    (select actorid from actorinfo where name = 'OPSystem');
+
+    将更改落实到数据库。
+
+父主题:
+LDAP 用户认证
+
+
+
+
+
+
+
+
+
+配置多森林 LDAP 认证
+上次更新时间: 2025-02-13
+
+IBM OpenPages® 支持在多森林配置中使用多个 LDAP 认证服务器。 如果应用程序在第一个认证服务器中找不到用户，那么它将检查列表中的下一个服务器并重复，直到它找到该用户或检查所有列出的认证服务器为止。
+
+列示多个 LDAP 服务器时，必须修改 aurora_auth.config 文件以包含多组服务器信息。
+
+此文件位于 <OP_Home>\aurora\conf 目录中，其中 
+            <OP_Home>
+         是 OpenPages 应用程序的安装位置。 缺省情况下为 c:\OpenPages。
+
+通过按索引键对服务器信息进行分组来完成此操作，如以下示例中所示:
+
+
+com.openpages.aurora.service.security.namespace.LDAPLoginModule required 
+debug=true
+provider.url.1="ldap://10.128.22.106:389"
+security.authentication.1="simple"
+security.search.user.dn.1="CN=Administrator,CN=Users,DC=parent,DC=parentchil
+d,DC=localdomain" 
+security.search.user.credentials.1="Op3nPag3s"          
+base.dn.1="DC=parent,DC=parentchild,DC=localdomain"
+user.attr.id.1="CN" 
+provider.url.2="ldap://10.128.22.107:389"
+security.authentication.2="simple"
+security.search.user.dn.2="CN=Administrator,CN=Users,DC=child,DC=parent,DC=p
+arentchild,DC=localdomain" 
+security.search.user.credentials.2="Op3nPag3s"          
+base.dn.2="DC=child,DC=parent,DC=parentchild,DC=localdomain"
+user.attr.id.2="CN" 
+
+通过将 ".1" 键添加到每个参数的末尾， OpenPages 可以正确解析设置并区分单独的 LDAP 服务器信息集。 将 ".2" 附加到第二个 LDAP 服务器的密钥，依此类推。
+
+对于单个 LDAP 服务器实现，您不需要将标识附加到参数名称的末尾。
+父主题:
+LDAP 用户认证

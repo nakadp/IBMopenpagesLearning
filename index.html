@@ -1770,6 +1770,33 @@
                                                             }
                                                         ]
                                                     }
+                                                },
+                                                {
+                                                    "name": "📄 Level 6: LDAP 用户认证与集成 (LDAP Authentication)",
+                                                    "explanation": "对接企业统一身份认证，实现多森林域环境下的单点管控与混合模式。",
+                                                    "level": 6,
+                                                    "details": {
+                                                        "title": "🛡️ LDAP 用户认证与配置归纳",
+                                                        "subtitle": "核心归纳：通过配置 aurora_auth.config 实现外部目录服务的集成与混合认证。",
+                                                        "points": [
+                                                            {
+                                                                "title": "1. 核心认证机制",
+                                                                "content": "IBM OpenPages 支持 LDAP 认证服务器。一旦启用，所有用户均由统一数据源认证，系统内将<strong>禁用“更改密码”</strong>选项。注意：所有需要访问系统的用户（包括 <code>OPSystem</code> 和超级管理员）都必须预先在 LDAP 服务器中定义。"
+                                                            },
+                                                            {
+                                                                "title": "2. 配置文件核心修改 (aurora_auth.config)",
+                                                                "content": "集成核心在于修改 <code><OP_Home>/aurora/conf/aurora_auth.config</code> 文件。需要将原生的 <code>Openpages</code> 模块重命名为 <code>OpenpagesDefault</code>，再将目标模板（如 <code>OpenpagesAD</code>）重命名为 <code>Openpages</code>。<br>关键参数包括：<code>provider.url</code>（含协议与端口389），<code>base.dn</code>（LDAP 树顶层结构域名），以及 <code>user.attr.id</code>。"
+                                                            },
+                                                            {
+                                                                "title": "3. 混合模式认证 (Mixed Mode)",
+                                                                "content": "如果某些特殊系统账号（如 <code>OPSystem</code>）不方便放在外部 LDAP 中，可以使用混合模式。需要在数据库中执行 SQL，向 <code>namespaces</code> 表插入 <code>OpenpagesDefault</code>，并通过 <code>update actors</code> 语句强行让这些特殊账号绕过 LDAP，指向内部原生认证模块。"
+                                                            },
+                                                            {
+                                                                "title": "4. 多森林 LDAP (Multi-Forest)",
+                                                                "content": "支持在多森林配置下挂载多个 LDAP 服务器。实现方式是在 <code>aurora_auth.config</code> 文件中，给每组参数的末尾追加索引键（例如 <code>provider.url.1</code>，<code>provider.url.2</code>）。系统会按顺序逐一查询，直到找到匹配的用户认证信息为止。"
+                                                            }
+                                                        ]
+                                                    }
                                                 }
                                             ]
                                         },
